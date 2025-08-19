@@ -37,8 +37,15 @@ export async function fetchRandomNumbers(): Promise<number[]> {
 
     return numbers;
   } catch (error) {
-    console.error('Random.org failed');
+    console.error('⚠️ Random.org failed. Using local fallback.\nReason:', error);
+    /*Fallback: if we recieve an invalid response then we default to a local number generator. We can also just let the client know that
+    the call failed and not proceed with the game if so. Will think about it*/
 
-    return [];
+    const fallback = Array.from(
+      { length: num },
+      () => Math.floor(Math.random() * (max - min + 1)) + min
+    );
+
+    return fallback;
   }
 }
