@@ -5,20 +5,16 @@ import path from 'path';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-import { fetchRandomNumbers } from './services/randomService';
+import { createGameSecret } from './services/gameService';
 
 // Health check route
 app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({ status: 'ok' });
 });
 
-app.get('/test-random', async (_req: Request, res: Response) => {
-  try {
-    const numbers = await fetchRandomNumbers();
-    res.status(200).json({ randomNumbers: numbers });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch random numbers' });
-  }
+app.get('/test-game', async (_req, res) => {
+  const secret = await createGameSecret();
+  res.status(200).json({ secret });
 });
 
 // Serve static files from the dist directory
