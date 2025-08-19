@@ -4,6 +4,8 @@
   "description": "Repository for LinkedIn Reach Apprenticeship 2025 Mastermind Game",
   "main": "index.js",
   "scripts": {
+    "dev": "webpack serve --mode development",
+    "build": "webpack --mode production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,6 +29,7 @@
     "@babel/preset-env": "^7.28.3",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
+    "@tailwindcss/postcss": "^4.1.12",
     "@types/express": "^4.17.23",
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.10",
