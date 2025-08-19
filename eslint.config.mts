@@ -12,7 +12,7 @@ export default defineConfig([
   {
     plugins: { prettier },
     rules: {
-      'prettier/prettier': 'error'
-    }
-  }
+      'prettier/prettier': 'error',
+    },
+  },
 ]);
