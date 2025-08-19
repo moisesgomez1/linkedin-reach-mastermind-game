@@ -41,6 +41,7 @@
     "globals": "^16.3.0",
     "html-webpack-plugin": "^5.6.4",
     "jiti": "^2.5.1",
+    "nodemon": "^3.1.10",
     "postcss": "^8.5.6",
     "postcss-loader": "^8.1.1",
     "prettier": "^3.6.2",
