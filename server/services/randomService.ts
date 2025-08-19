@@ -23,7 +23,7 @@ export async function fetchRandomNumbers(): Promise<string> {
     // Read and parse the plain text response
     const numbers = await response.text();
 
-    console.log ("This is the result of the call to random.org", numbers)
+    console.log('This is the result of the call to random.org', numbers);
 
     return numbers;
   } catch (error) {
