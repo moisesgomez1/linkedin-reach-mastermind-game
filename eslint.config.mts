@@ -4,15 +4,15 @@ import prettier from 'eslint-plugin-prettier';
 import configPrettier from 'eslint-config-prettier';
 
 export default defineConfig([
-  { ignores: ['dist/**', 'build/**', 'node_modules/**'] },
+    { ignores: ['dist/**', 'build/**', 'node_modules/**'] },
 
-  ...tseslint.configs.recommended,
+    ...tseslint.configs.recommended,
 
-  configPrettier,
-  {
-    plugins: { prettier },
-    rules: {
-      'prettier/prettier': 'error',
+    configPrettier,
+    {
+        plugins: { prettier },
+        rules: {
+            'prettier/prettier': 'error',
+        },
     },
-  },
 ]);

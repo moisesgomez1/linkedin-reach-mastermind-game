@@ -8,45 +8,45 @@
  */
 
 export function evaluateGuess(
-  secret: number[],
-  guess: number[]
+    secret: number[],
+    guess: number[]
 ): {
-  correctNumbers: number;
-  correctPositions: number;
+    correctNumbers: number;
+    correctPositions: number;
 } {
-  let correctPositions = 0;
-  let correctNumbers = 0;
+    let correctPositions = 0;
+    let correctNumbers = 0;
 
-  // We are cloning the arrays so we can mutate them without affecting the originals
-  const secretCopy = [...secret];
-  const guessCopy = [...guess];
+    // We are cloning the arrays so we can mutate them without affecting the originals
+    const secretCopy = [...secret];
+    const guessCopy = [...guess];
 
-  // First Pass: Count exact matches (correct number and correct position)
-  for (let i = 0; i < secret.length; i++) {
-    if (secret[i] === guess[i]) {
-      correctPositions++; // Direct match
-      secretCopy[i] = -1; // Mark as "used" so it can't be counted again. We are using -1 to mark as used.
-      guessCopy[i] = -1;
+    // First Pass: Count exact matches (correct number and correct position)
+    for (let i = 0; i < secret.length; i++) {
+        if (secret[i] === guess[i]) {
+            correctPositions++; // Direct match
+            secretCopy[i] = -1; // Mark as "used" so it can't be counted again. We are using -1 to mark as used.
+            guessCopy[i] = -1;
+        }
     }
-  }
 
-  // Second Pass: Count correct numbers in the wrong positions
-  for (let i = 0; i < guessCopy.length; i++) {
-    const guessNum = guessCopy[i];
+    // Second Pass: Count correct numbers in the wrong positions
+    for (let i = 0; i < guessCopy.length; i++) {
+        const guessNum = guessCopy[i];
 
-    // Skip already matched numbers
-    if (guessNum === -1) continue;
+        // Skip already matched numbers
+        if (guessNum === -1) continue;
 
-    // Try to find the guessNum somewhere else in the secret. This works because the indexOf method searches through the whole array
-    // and returns the index of the matched number without it being in the correct spot.
-    const matchIndex = secretCopy.indexOf(guessNum);
+        // Try to find the guessNum somewhere else in the secret. This works because the indexOf method searches through the whole array
+        // and returns the index of the matched number without it being in the correct spot.
+        const matchIndex = secretCopy.indexOf(guessNum);
 
-    // If the index has not already been used
-    if (matchIndex !== -1) {
-      correctNumbers++; // Number exists, just wrong spot
-      secretCopy[matchIndex] = -1; // Mark matched number as used
+        // If the index has not already been used
+        if (matchIndex !== -1) {
+            correctNumbers++; // Number exists, just wrong spot
+            secretCopy[matchIndex] = -1; // Mark matched number as used
+        }
     }
-  }
-  // Return the end result of the correctNumbers and the correctPositions. This will then be used by the client to display whether all incorrect or some incorrect.
-  return { correctNumbers, correctPositions };
+    // Return the end result of the correctNumbers and the correctPositions. This will then be used by the client to display whether all incorrect or some incorrect.
+    return { correctNumbers, correctPositions };
 }
