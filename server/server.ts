@@ -5,7 +5,11 @@ import path from 'path';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
 import { createGameSecret } from './services/gameService';
+import { evaluateGuess } from './utils/gameLogic';
+
+app.use(express.json());
 
 // Health check route
 app.get('/health', (_req: Request, res: Response) => {
@@ -15,6 +19,17 @@ app.get('/health', (_req: Request, res: Response) => {
 app.get('/test-game', async (_req, res) => {
   const secret = await createGameSecret();
   res.status(200).json({ secret });
+});
+
+app.post('/test-guess', (req, res) => {
+  const { secret, guess } = req.body;
+
+  if (!Array.isArray(secret) || !Array.isArray(guess)) {
+    return res.status(400).json({ error: 'Both secret and guess must be arrays of numbers' });
+  }
+
+  const result = evaluateGuess(secret, guess);
+  return res.status(200).json({ result });
 });
 
 // Serve static files from the dist directory
