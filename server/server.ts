@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express, { Request, Response } from 'express';
 import path from 'path';
-import { sequelize } from './config/db'
-import './models'
+import { sequelize } from './config/db';
+import './models';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,13 +44,14 @@ app.get(/.*/, (_req: Request, res: Response) => {
 });
 
 // Start server and sync database
-sequelize.sync({ alter: true })  //using force true for dev. 
-  .then(() => {
-    console.log('Database synced!');
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+sequelize
+    .sync({ alter: true }) //using force true for dev.
+    .then(() => {
+        console.log('Database synced!');
+        app.listen(PORT, () => {
+            console.log(`Server running on http://localhost:${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.error(' Database sync failed:', error);
     });
-  })
-  .catch((error) => {
-    console.error(' Database sync failed:', error);
-  });

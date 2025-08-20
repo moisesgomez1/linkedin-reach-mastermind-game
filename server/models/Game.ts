@@ -1,7 +1,27 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../config/db';
 
-const Game = sequelize.define(
+type GameAttributes = {
+    id: string;
+    secret: number[];
+    attemptsLeft: number;
+    isWin: boolean;
+    isOver: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
+};
+
+// which fields are optional on creation
+type GameCreationAttributes = Optional<
+    GameAttributes,
+    'id' | 'isWin' | 'isOver' | 'attemptsLeft' | 'createdAt' | 'updatedAt'
+>;
+
+export interface GameInstance
+    extends Model<GameAttributes, GameCreationAttributes>,
+        GameAttributes {}
+
+const Game = sequelize.define<GameInstance>(
     'Game',
     {
         id: {
