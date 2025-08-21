@@ -40,7 +40,7 @@ export async function fetchSecret(_req: Request, res: Response, next: NextFuncti
  * @param {Response} res - The HTTP response object; used to access `res.locals.secret` and attach the created game.
  * @param {NextFunction} next - Callback to pass control to the next middleware or error handler.
  */
-export const startGame = async (req: Request, res: Response, next: NextFunction) => {
+export async function startGame(req: Request, res: Response, next: NextFunction) {
     try {
         // Get secret from res.locals
         const secret: number[] = res.locals.secret;
@@ -56,7 +56,7 @@ export const startGame = async (req: Request, res: Response, next: NextFunction)
         console.error('Error starting game:', error);
         next(error);
     }
-};
+}
 
 /**
  * Middleware to set a `gameId` cookie for the client.
@@ -76,8 +76,8 @@ export function setGameCookie(_req: Request, res: Response, next: NextFunction) 
 
         res.cookie('gameId', gameId, {
             httpOnly: true,
-            secure: false, 
-            sameSite: 'none', //will be strict in prod 
+            secure: false,
+            sameSite: 'none', //will be strict in prod
             maxAge: 1000 * 60 * 60 * 24,
             path: '/',
         });
@@ -88,10 +88,49 @@ export function setGameCookie(_req: Request, res: Response, next: NextFunction) 
     }
 }
 
-export const makeGuess = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Middleware to load a game from the database using the `gameId` cookie.
+ *
+ * - Retrieves the `gameId` value from the request cookies.
+ * - Queries the database for a `Game` record with the given ID.
+ * - If found, attaches both `gameId` and the `Game` instance to `res.locals`.
+ * - If the cookie is missing or the game cannot be found, responds with an error.
+ *
+ * @async
+ * @param {Request} req - The HTTP request object; used to access the `gameId` cookie.
+ * @param {Response} res - The HTTP response object; used to attach the loaded game or send error responses.
+ * @param {NextFunction} next - Callback to pass control to the next middleware or error handler.
+ *
+ * @returns {void} Sends a `400` response if the `gameId` cookie is missing,
+ *                 or a `404` response if no game is found with that ID.
+ *                 Otherwise, proceeds to the next middleware.
+ */
+export async function loadGame(req: Request, res: Response, next: NextFunction) {
     try {
-        //just for testing will pass in the game id through the request body, will later retrieve from either session cookie or token.
-        const { gameId, guess } = req.body;
+        // getting the game id from the cookie.
+        const gameId = req.cookies?.gameId;
+        if (!gameId) {
+            return res.status(400).json({ error: 'Missing gameId cookie.' });
+        }
+
+        // making a query to find the game by the uuid
+        const game = await Game.findByPk(gameId);
+        if (!game) {
+            return res.status(404).json({ error: 'Game not found.' });
+        }
+
+        res.locals.gameId = gameId;
+        res.locals.game = game;
+        next();
+    } catch (err) {
+        next(err);
+    }
+}
+
+export async function makeGuess(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { guess } = req.body;
+        const { gameId } = res.locals;
 
         // Validate guess format (array of 4 numbers for now)
         if (
@@ -130,4 +169,4 @@ export const makeGuess = async (req: Request, res: Response, next: NextFunction)
     } catch (error) {
         next(error);
     }
-};
+}

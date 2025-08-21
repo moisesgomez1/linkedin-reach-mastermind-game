@@ -1,5 +1,5 @@
 import express from 'express';
-import { makeGuess, startGame, fetchSecret, setGameCookie } from '../controllers/gameController';
+import { makeGuess, startGame, fetchSecret, setGameCookie, loadGame } from '../controllers/gameController';
 
 const router = express.Router();
 
@@ -14,6 +14,6 @@ router.post('/start', fetchSecret, startGame, setGameCookie, (req, res) => {
     });
 });
 
-router.post('/guess', makeGuess);
+router.post('/guess', loadGame, makeGuess);
 
 export default router;
