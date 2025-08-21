@@ -1,4 +1,3 @@
-require('dotenv').config();
 //creating the service function that will make a request to the api to generate a random number
 
 export async function fetchRandomNumbers(): Promise<number[]> {
