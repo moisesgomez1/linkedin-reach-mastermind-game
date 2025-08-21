@@ -45,6 +45,8 @@ export const makeGuess = async (req: Request, res: Response, next: NextFunction)
       return res.status(400).json({ error: "No attempts remaining. Game over." });
     }
 
+    console.log ("This is the game secret", game.secret)
+
     // Evaluate the guess with the util function we imported
     const { correctNumbers, correctPositions } = evaluateGuess(game.secret, guess);
 

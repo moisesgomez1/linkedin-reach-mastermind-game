@@ -1,5 +1,5 @@
 import express from "express";
-import { startGame } from "../controllers/gameController";
+import { makeGuess, startGame } from "../controllers/gameController";
 
 const router = express.Router();
 
@@ -9,5 +9,7 @@ const router = express.Router();
  * @returns { gameId }
  */
 router.post("/start", startGame);
+
+router.post("/guess", makeGuess)
 
 export default router;
