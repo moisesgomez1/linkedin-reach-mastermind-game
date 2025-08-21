@@ -6,7 +6,8 @@
     "scripts": {
         "dev:client": "webpack serve --mode development",
         "dev:server": "nodemon --watch server --ext ts,json --exec \"ts-node -P tsconfig.server.json server/server.ts\"",
-        "build:client": "webpack --mode production"
+        "build:client": "webpack --mode production",
+        "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\""
     },
     "repository": {
         "type": "git",
@@ -21,12 +22,14 @@
     },
     "homepage": "https://github.com/moisesgomez1/linkedin-reach-mastermind-game#readme",
     "dependencies": {
+        "cors": "^2.8.5",
         "dotenv": "^17.2.1",
         "express": "^5.1.0",
         "pg": "^8.16.3",
         "pg-hstore": "^2.3.4",
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
+        "react-router-dom": "^7.8.1",
         "sequelize": "^6.37.7",
         "sequelize-typescript": "^2.1.6"
     },
@@ -36,6 +39,7 @@
         "@babel/preset-react": "^7.27.1",
         "@babel/preset-typescript": "^7.27.1",
         "@tailwindcss/postcss": "^4.1.12",
+        "@types/cors": "^2.8.19",
         "@types/express": "^5.0.3",
         "@types/node": "^24.3.0",
         "@types/react": "^19.1.10",

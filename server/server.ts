@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import cors from 'cors';
 dotenv.config();
 import express, { Request, Response } from 'express';
 import path from 'path';
@@ -11,8 +12,9 @@ const PORT = process.env.PORT || 3000;
 import { createGameSecret } from './services/gameService';
 import { evaluateGuess } from './utils/gameLogic';
 
-import gameRoutes from './routes/gameRoutes'
+import gameRoutes from './routes/gameRoutes';
 
+app.use(cors());
 app.use(express.json());
 
 // Health check route
@@ -21,7 +23,7 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 //Route Handler
-app.use('/api', gameRoutes)
+app.use('/api', gameRoutes);
 
 app.get('/test-game', async (_req, res) => {
     const secret = await createGameSecret();
