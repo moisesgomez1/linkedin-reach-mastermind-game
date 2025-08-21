@@ -3,22 +3,55 @@ import { createGameSecret } from '../services/gameService';
 import { evaluateGuess } from '../utils/gameLogic';
 import Game from '../models/Game';
 
+/**
+ * Middleware to fetch a secret from Random.org or a fallback.
+ * 
+ * If the secret is valid, it is attached to `res.locals.secret`.
+ * If the secret is invalid or an error occurs, a 502 response is sent or the error is passed to the next handler.
+ * 
+ * @async
+ * @param {Request} _req - The incoming request (not used).
+ * @param {Response} res - The HTTP response object; used to attach the secret and send errors.
+ * @param {NextFunction} next - Callback to pass control to the next middleware.
+ */
+export async function fetchSecret(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const secret = await createGameSecret(); 
+    if (!Array.isArray(secret) || secret.length !== 4) {
+      return res.status(502).json({ error: "Failed to generate a valid secret." });
+    }
+    res.locals.secret = secret;
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Middleware to initialize a new game session.
+ *
+ * Uses the secret stored in `res.locals.secret` to create a new `Game` record in the database.
+ * The newly created game instance is attached to `res.locals.game`.
+ * 
+ * If an error occurs during database interaction, it is passed to the error-handling middleware.
+ *
+ * @async
+ * @param {Request} req - The HTTP request object (not used).
+ * @param {Response} res - The HTTP response object; used to access `res.locals.secret` and attach the created game.
+ * @param {NextFunction} next - Callback to pass control to the next middleware or error handler.
+ */
 export const startGame = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // Fetch secret code from Random.org
-        const secret = await createGameSecret();
+        // Get secret from res.locals
+        const secret: number[] = res.locals.secret;
 
         // Create a new Game record in the database
         const newGame = await Game.create({
             secret,
             attemptsLeft: 10,
         });
-
-        // Return game ID to client (client will store this for subsequent requests)
-        res.status(201).json({
-            gameId: newGame.id,
-            message: 'New game started. You have 10 attempts to guess the code.',
-        });
+        res.locals.game = newGame;
+        next();
     } catch (error) {
         console.error('Error starting game:', error);
         next(error);
