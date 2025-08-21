@@ -11,12 +11,17 @@ const PORT = process.env.PORT || 3000;
 import { createGameSecret } from './services/gameService';
 import { evaluateGuess } from './utils/gameLogic';
 
+import gameRoutes from './routes/gameRoutes'
+
 app.use(express.json());
 
 // Health check route
 app.get('/health', (_req: Request, res: Response) => {
     res.status(200).json({ status: 'ok' });
 });
+
+//Route Handler
+app.use('/api', gameRoutes)
 
 app.get('/test-game', async (_req, res) => {
     const secret = await createGameSecret();
