@@ -5,26 +5,26 @@ import Game from '../models/Game';
 
 /**
  * Middleware to fetch a secret from Random.org or a fallback.
- * 
+ *
  * If the secret is valid, it is attached to `res.locals.secret`.
  * If the secret is invalid or an error occurs, a 502 response is sent or the error is passed to the next handler.
- * 
+ *
  * @async
  * @param {Request} _req - The incoming request (not used).
  * @param {Response} res - The HTTP response object; used to attach the secret and send errors.
  * @param {NextFunction} next - Callback to pass control to the next middleware.
  */
 export async function fetchSecret(_req: Request, res: Response, next: NextFunction) {
-  try {
-    const secret = await createGameSecret(); 
-    if (!Array.isArray(secret) || secret.length !== 4) {
-      return res.status(502).json({ error: "Failed to generate a valid secret." });
+    try {
+        const secret = await createGameSecret();
+        if (!Array.isArray(secret) || secret.length !== 4) {
+            return res.status(502).json({ error: 'Failed to generate a valid secret.' });
+        }
+        res.locals.secret = secret;
+        next();
+    } catch (err) {
+        next(err);
     }
-    res.locals.secret = secret;
-    next();
-  } catch (err) {
-    next(err);
-  }
 }
 
 /**
@@ -32,7 +32,7 @@ export async function fetchSecret(_req: Request, res: Response, next: NextFuncti
  *
  * Uses the secret stored in `res.locals.secret` to create a new `Game` record in the database.
  * The newly created game instance is attached to `res.locals.game`.
- * 
+ *
  * If an error occurs during database interaction, it is passed to the error-handling middleware.
  *
  * @async
@@ -57,6 +57,36 @@ export const startGame = async (req: Request, res: Response, next: NextFunction)
         next(error);
     }
 };
+
+/**
+ * Middleware to set a `gameId` cookie for the client.
+ *
+ * Retrieves the `game.id` value from `res.locals.game` and attaches it as a
+ * cookie named `gameId`.
+ *
+ * This allows the client to persist its game session across requests.
+ *
+ * @param {Request} _req - The HTTP request object (not used).
+ * @param {Response} res - The HTTP response object; used to set the cookie.
+ * @param {NextFunction} next - Callback to pass control to the next middleware or error handler.
+ */
+export function setGameCookie(_req: Request, res: Response, next: NextFunction) {
+    try {
+        const gameId = res.locals.game.id as string;
+
+        res.cookie('gameId', gameId, {
+            httpOnly: true,
+            secure: false, 
+            sameSite: 'none', //will be strict in prod 
+            maxAge: 1000 * 60 * 60 * 24,
+            path: '/',
+        });
+
+        next();
+    } catch (err) {
+        next(err);
+    }
+}
 
 export const makeGuess = async (req: Request, res: Response, next: NextFunction) => {
     try {

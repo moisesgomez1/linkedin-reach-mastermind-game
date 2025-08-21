@@ -9,8 +9,9 @@ export default function Home() {
     const handleStart = async () => {
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:3000/api/start', {
+            const res = await fetch('/api/start', {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
             });
             const data = await res.json();

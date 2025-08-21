@@ -1,5 +1,5 @@
 import express from 'express';
-import { makeGuess, startGame } from '../controllers/gameController';
+import { makeGuess, startGame, fetchSecret, setGameCookie } from '../controllers/gameController';
 
 const router = express.Router();
 
@@ -8,7 +8,11 @@ const router = express.Router();
  * @desc Starts a new Mastermind game
  * @returns { gameId }
  */
-router.post('/start', startGame);
+router.post('/start', fetchSecret, startGame, setGameCookie, (req, res) => {
+    res.status(201).json({
+        message: 'New game started. You have 10 attempts to guess the code.',
+    });
+});
 
 router.post('/guess', makeGuess);
 
