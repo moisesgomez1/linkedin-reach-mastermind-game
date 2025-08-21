@@ -1,5 +1,5 @@
-import express from "express";
-import { makeGuess, startGame } from "../controllers/gameController";
+import express from 'express';
+import { makeGuess, startGame } from '../controllers/gameController';
 
 const router = express.Router();
 
@@ -8,8 +8,8 @@ const router = express.Router();
  * @desc Starts a new Mastermind game
  * @returns { gameId }
  */
-router.post("/start", startGame);
+router.post('/start', startGame);
 
-router.post("/guess", makeGuess)
+router.post('/guess', makeGuess);
 
 export default router;
