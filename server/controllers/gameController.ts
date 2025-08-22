@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { createGameSecret } from '../services/gameService';
 import { evaluateGuess } from '../utils/gameLogic';
-import Game from '../models/Game';
+import { Game, GameHistory } from '../models';
 
 /**
  * Middleware to fetch a secret from Random.org or a fallback.
@@ -168,14 +168,21 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
         } else if (game.attemptsLeft === 0) {
             game.isOver = true;
         }
-        await game.save(); //db query
+        await game.save(); //db query, returns the saved data.
 
-        return res.status(200).json({
+        // We are creating a new guess entry in the game_history table after every guess. This gets returned to the client to show history
+        const newGuess = await GameHistory.create({
+            gameId: game.id,
+            guess,
             correctNumbers,
             correctPositions,
-            attemptsLeft: game.attemptsLeft,
+        });
+
+        return res.status(200).json({
+            guess: newGuess,
             isWin: game.isWin,
             isOver: game.isOver,
+            attemptsLeft: game.attemptsLeft,
         });
     } catch (error) {
         next(error);

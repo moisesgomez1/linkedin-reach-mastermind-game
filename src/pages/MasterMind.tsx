@@ -1,17 +1,25 @@
+import GuessHistory from '@/components/GuessHistory';
 import { useState } from 'react';
 
 type GuessResponse = {
-    correctNumbers: number;
-    correctPositions: number;
+    guess: GuessRecord;
     attemptsLeft: number;
     isWin: boolean;
     isOver: boolean;
+};
+
+type GuessRecord = {
+    id: string;
+    guess: number[];
+    correctNumbers: number;
+    correctPositions: number;
 };
 
 export default function Mastermind() {
     //state handlers
     const [guess, setGuess] = useState('');
     const [lastResult, setLastResult] = useState<GuessResponse | null>(null);
+    const [guessHistory, setGuessHistory] = useState<GuessRecord[]>([]);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -44,6 +52,8 @@ export default function Mastermind() {
             // sets the current data the reflect how many tries they have left and how many guesses they got correct. Feedback essentially
             setLastResult(data);
             setGuess('');
+            // Append the new guess to history
+            setGuessHistory((prev) => [...prev, data.guess]);
         } catch (err: any) {
             setError(err?.message ?? 'Failed to submit guess');
         } finally {
@@ -68,17 +78,17 @@ export default function Mastermind() {
                             onChange={(e) => setGuess(e.target.value)}
                             placeholder="Enter guess"
                             className="
-                            w-full max-w-[420px]
-                            text-center
-                            text-2xl
-                            font-bold
-                            px-6 py-4
-                            rounded-2xl
-                            border-2 border-slate-200
-                            focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-400
-                            bg-slate-50 text-slate-900
-                            placeholder:text-slate-300
-                        "
+                w-full max-w-[420px]
+                text-center
+                text-2xl
+                font-bold
+                px-6 py-4
+                rounded-2xl
+                border-2 border-slate-200
+                focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-400
+                bg-slate-50 text-slate-900
+                placeholder:text-slate-300
+              "
                             disabled={lastResult?.isOver}
                         />
 
@@ -86,16 +96,16 @@ export default function Mastermind() {
                             type="submit"
                             disabled={!canSubmit || lastResult?.isOver}
                             className="
-                            w-full max-w-[420px]
-                            h-14
-                            rounded-2xl
-                            bg-blue-600 text-white
-                            text-lg font-bold
-                            shadow-lg shadow-blue-600/30
-                            hover:bg-blue-700
-                            focus:outline-none focus:ring-4 focus:ring-blue-300
-                            disabled:opacity-50 disabled:cursor-not-allowed
-                        "
+                w-full max-w-[420px]
+                h-14
+                rounded-2xl
+                bg-blue-600 text-white
+                text-lg font-bold
+                shadow-lg shadow-blue-600/30
+                hover:bg-blue-700
+                focus:outline-none focus:ring-4 focus:ring-blue-300
+                disabled:opacity-50 disabled:cursor-not-allowed
+              "
                         >
                             {submitting ? 'Checking…' : 'Submit Guess'}
                         </button>
@@ -114,13 +124,13 @@ export default function Mastermind() {
                             <div className="rounded-2xl bg-slate-50 border border-slate-200 p-5 text-center">
                                 <div className="text-sm text-slate-500">Correct Numbers</div>
                                 <div className="mt-1 text-4xl font-black text-slate-900">
-                                    {lastResult.correctNumbers}
+                                    {lastResult.guess.correctNumbers}
                                 </div>
                             </div>
                             <div className="rounded-2xl bg-slate-50 border border-slate-200 p-5 text-center">
                                 <div className="text-sm text-slate-500">Correct Positions</div>
                                 <div className="mt-1 text-4xl font-black text-slate-900">
-                                    {lastResult.correctPositions}
+                                    {lastResult.guess.correctPositions}
                                 </div>
                             </div>
                             <div className="rounded-2xl bg-slate-50 border border-slate-200 p-5 text-center">
@@ -142,6 +152,9 @@ export default function Mastermind() {
                             )}
                         </div>
                     )}
+
+                    {/* Guess History */}
+                    <GuessHistory history={guessHistory} />
                 </div>
             </div>
         </div>
