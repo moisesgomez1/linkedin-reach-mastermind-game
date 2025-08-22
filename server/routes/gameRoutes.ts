@@ -6,9 +6,12 @@ import {
     setGameCookie,
     loadGame,
     validateGuessInput,
+    listGames,
 } from '../controllers/gameController';
 
 const router = express.Router();
+
+router.get('/games', listGames);
 
 /**
  * @route POST /start

@@ -225,3 +225,35 @@ export function validateGuessInput(req: Request, res: Response, next: NextFuncti
 
     next();
 }
+
+/**
+ * Middleware to retrieve and list all games.
+ *
+ * Queries the database for all `Game` records, selecting only specific attributes:
+ * Results are ordered by `createdAt` in descending order.
+ *
+ * On success, responds with a JSON object containing the list of games.
+ * On failure, passes the error to the error-handling middleware.
+ *
+ * @async
+ * @param {Request} _req - The HTTP request object (not used).
+ * @param {Response} res - The HTTP response object; sends back the games list in JSON format.
+ * @param {NextFunction} next - Callback to pass control to the next middleware or error handler.
+ *
+ * @returns {void} Sends a `200 OK` response with `{ games: Game[] }` if successful,
+ *                 or calls `next(err)` on failure.
+ */
+export async function listGames(_req: Request, res: Response, next: NextFunction) {
+    try {
+        const games = await Game.findAll({
+            attributes: ['id', 'attemptsLeft', 'isWin', 'isOver', 'createdAt', 'updatedAt'],
+            order: [['createdAt', 'DESC']],
+        });
+
+        res.status(200).json({
+            games,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
