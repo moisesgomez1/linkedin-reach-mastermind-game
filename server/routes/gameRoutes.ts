@@ -1,5 +1,11 @@
 import express from 'express';
-import { makeGuess, startGame, fetchSecret, setGameCookie, loadGame } from '../controllers/gameController';
+import {
+    makeGuess,
+    startGame,
+    fetchSecret,
+    setGameCookie,
+    loadGame,
+} from '../controllers/gameController';
 
 const router = express.Router();
 

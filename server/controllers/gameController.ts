@@ -76,10 +76,10 @@ export function setGameCookie(_req: Request, res: Response, next: NextFunction) 
 
         res.cookie('gameId', gameId, {
             httpOnly: true,
-            secure: false,
-            sameSite: 'none', //will be strict in prod
-            maxAge: 1000 * 60 * 60 * 24,
+            secure: false, // http
+            sameSite: 'lax', // not 'none' on http
             path: '/',
+            maxAge: 86400000,
         });
 
         next();
@@ -109,6 +109,7 @@ export async function loadGame(req: Request, res: Response, next: NextFunction) 
     try {
         // getting the game id from the cookie.
         const gameId = req.cookies?.gameId;
+        console.log('cookies:', req.cookies, 'gameId:', gameId);
         if (!gameId) {
             return res.status(400).json({ error: 'Missing gameId cookie.' });
         }

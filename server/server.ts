@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 dotenv.config();
 import express, { Request, Response } from 'express';
 import path from 'path';
@@ -16,9 +17,12 @@ import gameRoutes from './routes/gameRoutes';
 
 app.use(
     cors({
+        origin: 'http://localhost:8080',
         credentials: true,
     })
 );
+
+app.use(cookieParser());
 
 app.use(express.json());
 
