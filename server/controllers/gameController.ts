@@ -177,13 +177,17 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
             correctNumbers,
             correctPositions,
         });
+        // // we are now sending the full History instead of a single guess after every request from the client. This helps avoid having different response types in the frontend.
+        // const fullHistory = await GameHistory.findAll({ where: { gameId: game.id }, order: [['createdAt','ASC']] });
 
-        return res.status(200).json({
-            guess: newGuess,
-            isWin: game.isWin,
-            isOver: game.isOver,
-            attemptsLeft: game.attemptsLeft,
-        });
+        // return res.status(200).json({
+        //     guesses: fullHistory,
+        //     isWin: game.isWin,
+        //     isOver: game.isOver,
+        //     attemptsLeft: game.attemptsLeft,
+        // });
+        res.locals.game = game; //overwritting res.locals.game with new game state.
+        return next();
     } catch (error) {
         next(error);
     }
@@ -253,6 +257,69 @@ export async function listGames(_req: Request, res: Response, next: NextFunction
         res.status(200).json({
             games,
         });
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * Middleware to select a game by its ID from the request parameters.
+ *
+ * - Extracts the `id` parameter from the route.
+ * - Queries the database for a `Game` record with the given ID.
+ * - If no game is found, responds with a `404 Not Found` error.
+ * - If found, attaches the `Game` instance to `res.locals.game` and continues.
+ *
+ * @async
+ * @param {Request} req - The HTTP request object; must include `req.params.id`.
+ * @param {Response} res - The HTTP response object; used to attach the game or send error responses.
+ * @param {NextFunction} next - Callback to pass control to the next middleware or error handler.
+ *
+ * @returns {void} Sends a `404` response if the game is not found,
+ *                 otherwise calls `next()` after attaching the game.
+ */
+export async function selectGame(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { id } = req.params;
+        console.log('id from req params', id);
+
+        const game = await Game.findByPk(id);
+        if (!game) {
+            return res.status(404).json({ error: 'Game not found.' });
+        }
+
+        res.locals.game = game;
+        return next();
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * Middleware to retrieve the current game and its history.
+ *
+ * - Uses the `game` object stored in `res.locals.game` (set by previous middleware).
+ * - Fetches all `GameHistory` records associated with the game, ordered by creation time.
+ * - Attaches the history array to `res.locals.history` for later middleware or response handling.
+ *
+ * @async
+ * @param {Request} _req - The HTTP request object (not used).
+ * @param {Response} res - The HTTP response object; used to attach the game history.
+ * @param {NextFunction} next - Callback to pass control to the next middleware or error handler.
+ *
+ * @returns {void} Calls `next()` after attaching `history`, or passes error to error handler.
+ */
+export async function getCurrentGame(_req: Request, res: Response, next: NextFunction) {
+    try {
+        const game = res.locals.game;
+        const history = await GameHistory.findAll({
+            where: { gameId: game.id },
+            order: [['createdAt', 'ASC']],
+            attributes: ['id', 'guess', 'correctNumbers', 'correctPositions', 'createdAt'],
+        });
+
+        res.locals.history = history;
+        return next();
     } catch (err) {
         next(err);
     }

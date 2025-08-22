@@ -6,10 +6,10 @@ type GuessRecord = {
 };
 
 type GuessHistoryProps = {
-    history: GuessRecord[];
+    history?: GuessRecord[];
 };
 
-export default function GuessHistory({ history }: GuessHistoryProps) {
+export default function GuessHistory({ history = [] }: GuessHistoryProps) {
     if (history.length === 0) return null;
 
     return (
