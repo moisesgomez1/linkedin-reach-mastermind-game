@@ -160,14 +160,61 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
 
         // Update attempts
         game.attemptsLeft -= 1;
+
+        // Check for win condition
+        if (correctPositions === 4) {
+            game.isWin = true;
+            game.isOver = true;
+        } else if (game.attemptsLeft === 0) {
+            game.isOver = true;
+        }
         await game.save(); //db query
 
         return res.status(200).json({
             correctNumbers,
             correctPositions,
             attemptsLeft: game.attemptsLeft,
+            isWin: game.isWin,
+            isOver: game.isOver,
         });
     } catch (error) {
         next(error);
     }
+}
+
+/**
+ * Middleware to validate the player's guess input.
+ *
+ * Ensures that the request body contains a `guess` field that meets all of the following:
+ * - Must be an array.
+ * - Must contain exactly 4 elements.
+ * - Each element must be an integer.
+ * - Each integer must be between 0 and 7 (inclusive).
+ *
+ * If validation fails, responds with a `400 Bad Request` and an appropriate error message.
+ * If validation passes, the request continues to the next middleware.
+ *
+ * @param {Request} req - The HTTP request object; expected to contain `req.body.guess`.
+ * @param {Response} res - The HTTP response object; used to send error responses when validation fails.
+ * @param {NextFunction} next - Callback to pass control to the next middleware if validation succeeds.
+ *
+ * @returns {void} Sends a `400` response if validation fails; otherwise calls `next()`.
+ */
+export function validateGuessInput(req: Request, res: Response, next: NextFunction) {
+    const { guess } = req.body;
+
+    if (!Array.isArray(guess)) {
+        return res.status(400).json({ error: 'guess must be an array.' });
+    }
+    if (guess.length !== 4) {
+        return res.status(400).json({ error: 'guess must contain exactly 4 numbers.' });
+    }
+    if (guess.some((n) => typeof n !== 'number' || !Number.isInteger(n))) {
+        return res.status(400).json({ error: 'guess must contain integers.' });
+    }
+    if (guess.some((n) => n < 0 || n > 7)) {
+        return res.status(400).json({ error: 'each number must be between 0 and 7.' });
+    }
+
+    next();
 }

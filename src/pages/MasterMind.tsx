@@ -4,6 +4,8 @@ type GuessResponse = {
     correctNumbers: number;
     correctPositions: number;
     attemptsLeft: number;
+    isWin: boolean;
+    isOver: boolean;
 };
 
 export default function Mastermind() {
@@ -66,44 +68,47 @@ export default function Mastermind() {
                             onChange={(e) => setGuess(e.target.value)}
                             placeholder="Enter guess"
                             className="
-                w-full max-w-[420px]
-                text-center
-                text-2xl
-                font-bold
-                px-6 py-4
-                rounded-2xl
-                border-2 border-slate-200
-                focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-400
-                bg-slate-50 text-slate-900
-                placeholder:text-slate-300
-              "
+                            w-full max-w-[420px]
+                            text-center
+                            text-2xl
+                            font-bold
+                            px-6 py-4
+                            rounded-2xl
+                            border-2 border-slate-200
+                            focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-400
+                            bg-slate-50 text-slate-900
+                            placeholder:text-slate-300
+                        "
+                            disabled={lastResult?.isOver}
                         />
 
                         <button
                             type="submit"
-                            disabled={!canSubmit}
+                            disabled={!canSubmit || lastResult?.isOver}
                             className="
-                w-full max-w-[420px]
-                h-14
-                rounded-2xl
-                bg-blue-600 text-white
-                text-lg font-bold
-                shadow-lg shadow-blue-600/30
-                hover:bg-blue-700
-                focus:outline-none focus:ring-4 focus:ring-blue-300
-                disabled:opacity-50 disabled:cursor-not-allowed
-              "
+                            w-full max-w-[420px]
+                            h-14
+                            rounded-2xl
+                            bg-blue-600 text-white
+                            text-lg font-bold
+                            shadow-lg shadow-blue-600/30
+                            hover:bg-blue-700
+                            focus:outline-none focus:ring-4 focus:ring-blue-300
+                            disabled:opacity-50 disabled:cursor-not-allowed
+                        "
                         >
                             {submitting ? 'Checking…' : 'Submit Guess'}
                         </button>
                     </form>
 
+                    {/* Error Message */}
                     {error && (
                         <div className="mt-4 rounded-2xl bg-red-50 text-red-700 px-4 py-3 text-sm">
                             {error}
                         </div>
                     )}
 
+                    {/* Feedback Result */}
                     {lastResult && (
                         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="rounded-2xl bg-slate-50 border border-slate-200 p-5 text-center">
@@ -124,6 +129,17 @@ export default function Mastermind() {
                                     {lastResult.attemptsLeft}
                                 </div>
                             </div>
+                        </div>
+                    )}
+
+                    {/* Game Result Message */}
+                    {lastResult?.isOver && (
+                        <div className="mt-6 p-4 text-center text-xl font-semibold">
+                            {lastResult.isWin ? (
+                                <span className="text-green-600">🎉 You Won!</span>
+                            ) : (
+                                <span className="text-red-600">💀 Game Over. You Lost!</span>
+                            )}
                         </div>
                     )}
                 </div>

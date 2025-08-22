@@ -5,6 +5,7 @@ import {
     fetchSecret,
     setGameCookie,
     loadGame,
+    validateGuessInput,
 } from '../controllers/gameController';
 
 const router = express.Router();
@@ -20,6 +21,6 @@ router.post('/start', fetchSecret, startGame, setGameCookie, (req, res) => {
     });
 });
 
-router.post('/guess', loadGame, makeGuess);
+router.post('/guess', loadGame, validateGuessInput, makeGuess);
 
 export default router;
