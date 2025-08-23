@@ -7,6 +7,9 @@ type GameAttributes = {
     attemptsLeft: number;
     isWin: boolean;
     isOver: boolean;
+    startTime: Date | null;
+    timeLimit: number | null;
+    mode: 'classic' | 'timed';
     createdAt?: Date;
     updatedAt?: Date;
 };
@@ -48,6 +51,22 @@ const Game = sequelize.define<GameInstance>(
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false,
+        },
+        startTime: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
+        timeLimit: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
+        mode: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'classic',
+            validate: {
+                isIn: [['classic', 'timed']],
+            },
         },
     },
     {

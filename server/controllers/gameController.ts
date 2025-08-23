@@ -45,10 +45,16 @@ export async function startGame(req: Request, res: Response, next: NextFunction)
         // Get secret from res.locals
         const secret: number[] = res.locals.secret;
 
+        // Introducing game modes
+        const mode = req.body?.mode === 'timed' ? 'timed' : 'classic';
+
         // Create a new Game record in the database
         const newGame = await Game.create({
             secret,
             attemptsLeft: 10,
+            mode,
+            startTime: mode === 'timed' ? new Date() : null, //will be null for classic mode
+            timeLimit: mode === 'timed' ? 60 : null, // 60 seconds for timed mode, null for classic
         });
         res.locals.game = newGame;
         next();
