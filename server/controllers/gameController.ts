@@ -157,6 +157,25 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
 
         console.log('game from res.locals', res.locals.game);
 
+        // Enforce timer logic for 'timed' mode
+        if (game.mode === 'timed') {
+            if (!game.startTime || !game.timeLimit) {
+                return res
+                    .status(500)
+                    .json({ error: 'Timed game is missing timing configuration.' });
+            }
+
+            const now = new Date();
+            const elapsed = (now.getTime() - new Date(game.startTime).getTime()) / 1000; //get elapsed time in seconds
+            console.log('Elapsed time in seconds:', elapsed);
+
+            if (elapsed > game.timeLimit) { // if elapsed time exceeds time limit then game is over and we updated isOver to true.
+                game.isOver = true;
+                await game.save();
+                return res.status(400).json({ error: 'Time is up! Game over.' });
+            }
+        }
+
         // Check if game is still active
         if (game.attemptsLeft <= 0) {
             return res.status(400).json({ error: 'No attempts remaining. Game over.' });
