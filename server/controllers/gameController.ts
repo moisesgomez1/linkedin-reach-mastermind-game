@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { createGameSecret } from '../services/gameService';
 import { evaluateGuess } from '../utils/gameLogic';
 import { Game, GameHistory } from '../models';
+import { GameInstance } from 'server/models/Game';
 
 /**
  * Middleware to fetch a secret from Random.org or a fallback.
@@ -128,25 +129,28 @@ export async function loadGame(req: Request, res: Response, next: NextFunction) 
     }
 }
 
+/**
+ * Processes a player's guess for the current Mastermind game.
+ *
+ * Assumes the game has already been loaded and validated by previous middleware.
+ * - Evaluates the guess using the game's secret.
+ * - Updates the game state (attempts left, win/loss status).
+ * - Persists the guess in the GameHistory table.
+ * - Updates `res.locals.game` with the modified game instance.
+ *
+ * @param {Request} req - Express request object, must contain `guess` in `req.body`.
+ * @param {Response} res - Express response object, used to read and modify locals.
+ * @param {NextFunction} next - Express next function to pass control to next middleware.
+ *
+ * @returns {void} Passes control to the next middleware or error handler.
+ */
 export async function makeGuess(req: Request, res: Response, next: NextFunction) {
     try {
         const { guess } = req.body;
         const { gameId } = res.locals;
+        const { game } = res.locals;
 
-        // Validate guess format (array of 4 numbers for now)
-        if (
-            !Array.isArray(guess) ||
-            guess.length !== 4 ||
-            guess.some((n) => typeof n !== 'number')
-        ) {
-            return res
-                .status(400)
-                .json({ error: 'Invalid guess format. Must be an array of 4 numbers.' });
-        }
-
-        // Fetch game from db
-        const game = await Game.findByPk(gameId);
-        if (!game) return res.status(404).json({ error: 'Game not found.' });
+        console.log('game from res.locals', res.locals.game);
 
         // Check if game is still active
         if (game.attemptsLeft <= 0) {
