@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { createGameSecret } from '../services/gameService';
 import { evaluateGuess } from '../utils/gameLogic';
 import { Game, GameHistory } from '../models';
-import { GameInstance } from 'server/models/Game';
 
 /**
  * Middleware to fetch a secret from Random.org or a fallback.
