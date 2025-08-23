@@ -283,7 +283,7 @@ export async function listGames(_req: Request, res: Response, next: NextFunction
  */
 export async function selectGame(req: Request, res: Response, next: NextFunction) {
     try {
-        //Note: we can easily just use the id from req.params but just for validation we will query the database to make sure it is valid. 
+        //Note: we can easily just use the id from req.params but just for validation we will query the database to make sure it is valid.
         const { id } = req.params;
         console.log('id from req params', id);
 
