@@ -28,10 +28,9 @@ export default function GameList({ games, onSelect }: GameListProps) {
                     className="text-left rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition"
                 >
                     <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-500">Game ID</span>
                         <span
                             className={[
-                                'text-xs font-semibold rounded-full px-2 py-0.5',
+                                'text-xs font-semibold rounded-full px-0.5 py-0.5',
                                 g.isOver
                                     ? g.isWin
                                         ? 'bg-green-100 text-green-700'
@@ -42,7 +41,6 @@ export default function GameList({ games, onSelect }: GameListProps) {
                             {g.isOver ? (g.isWin ? 'Won' : 'Over') : 'Active'}
                         </span>
                     </div>
-                    <div className="mt-1 font-mono text-slate-800 truncate">{g.id}</div>
 
                     <div className="mt-3 text-sm text-slate-600">
                         Attempts Remaining:{' '}

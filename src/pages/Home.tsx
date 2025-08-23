@@ -92,7 +92,7 @@ export default function Home() {
                         <button
                             onClick={handleContinue}
                             disabled={listLoading}
-                            className="h-12 px-6 rounded-2xl bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700 disabled:opacity-50"
+                            className="h-12 px-6 rounded-2xl bg-green-600 text-white font-semibold shadow hover:bg-green-500 disabled:opacity-50"
                         >
                             {listLoading ? 'Loading…' : 'Continue Game'}
                         </button>
