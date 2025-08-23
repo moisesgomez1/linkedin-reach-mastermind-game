@@ -169,7 +169,8 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
             const elapsed = (now.getTime() - new Date(game.startTime).getTime()) / 1000; //get elapsed time in seconds
             console.log('Elapsed time in seconds:', elapsed);
 
-            if (elapsed > game.timeLimit) { // if elapsed time exceeds time limit then game is over and we updated isOver to true.
+            if (elapsed > game.timeLimit) {
+                // if elapsed time exceeds time limit then game is over and we updated isOver to true.
                 game.isOver = true;
                 await game.save();
                 return res.status(400).json({ error: 'Time is up! Game over.' });

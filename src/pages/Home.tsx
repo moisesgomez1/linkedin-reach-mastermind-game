@@ -20,25 +20,9 @@ export default function Home() {
     const [error, setError] = useState<string | null>(null);
 
     const navigate = useNavigate();
-
-    const handleStart = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch('http://localhost:3000/api/start', {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-            });
-            const data = await res.json();
-            console.log('Start game:', data);
-            // Navigate to mastermind game page after succesfully starting a new game
-            navigate('/mastermind');
-        } catch (err) {
-            console.error(err);
-            alert('Failed to start game.');
-        } finally {
-            setLoading(false);
-        }
+    // When this function is called, navigate to the mode selection page. This is used in the StartButton component.
+    const goToModeSelect = () => {
+        navigate('/select-mode');
     };
 
     const handleContinue = async () => {
@@ -88,7 +72,11 @@ export default function Home() {
                     </p>
 
                     <div className="mt-8 flex items-center justify-center gap-4">
-                        <StartButton onClick={handleStart} disabled={loading} loading={loading} />
+                        <StartButton
+                            onClick={goToModeSelect}
+                            disabled={loading}
+                            loading={loading}
+                        />
                         <button
                             onClick={handleContinue}
                             disabled={listLoading}
