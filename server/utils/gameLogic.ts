@@ -34,10 +34,7 @@ export function evaluateGuess(
     for (let i = 0; i < guessCopy.length; i++) {
         const guessNum = guessCopy[i];
 
-        // Skip already matched numbers
-        if (guessNum === -1) continue;
-
-        // Try to find the guessNum somewhere else in the secret. This works because the indexOf method searches through the whole array
+        // This works because the indexOf method searches through the whole array
         // and returns the index of the matched number without it being in the correct spot.
         const matchIndex = secretCopy.indexOf(guessNum);
 
