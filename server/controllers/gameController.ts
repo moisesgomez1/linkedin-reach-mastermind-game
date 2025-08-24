@@ -179,9 +179,8 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
 
         // Check if game is still active depending on mode
         if (game.mode === 'classic' && game.attemptsLeft <= 0) {
-  return res.status(400).json({ error: 'No attempts remaining. Game over.' });
-}
-
+            return res.status(400).json({ error: 'No attempts remaining. Game over.' });
+        }
 
         console.log('This is the game secret', game.secret);
 
@@ -190,9 +189,8 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
 
         // Update attempts
         if (game.mode === 'classic') {
-  game.attemptsLeft -= 1;
-}
-
+            game.attemptsLeft -= 1;
+        }
 
         // Check for win condition
         if (correctPositions === 4) {
