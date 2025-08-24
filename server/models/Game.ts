@@ -4,7 +4,7 @@ import { sequelize } from '../config/db';
 type GameAttributes = {
     id: string;
     secret: number[];
-    attemptsLeft: number;
+    attemptsLeft: number | null; // null for timed mode
     isWin: boolean;
     isOver: boolean;
     startTime: Date | null;
@@ -39,7 +39,7 @@ const Game = sequelize.define<GameInstance>(
         },
         attemptsLeft: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true, // null for timed mode
             defaultValue: 10,
         },
         isWin: {

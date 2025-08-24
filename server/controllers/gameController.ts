@@ -51,7 +51,7 @@ export async function startGame(req: Request, res: Response, next: NextFunction)
         // Create a new Game record in the database
         const newGame = await Game.create({
             secret,
-            attemptsLeft: 10,
+            attemptsLeft: mode === 'classic' ? 10 : null, // use null or a high number
             mode,
             startTime: mode === 'timed' ? new Date() : null, //will be null for classic mode
             timeLimit: mode === 'timed' ? 60 : null, // 60 seconds for timed mode, null for classic
@@ -177,10 +177,11 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
             }
         }
 
-        // Check if game is still active
-        if (game.attemptsLeft <= 0) {
-            return res.status(400).json({ error: 'No attempts remaining. Game over.' });
-        }
+        // Check if game is still active depending on mode
+        if (game.mode === 'classic' && game.attemptsLeft <= 0) {
+  return res.status(400).json({ error: 'No attempts remaining. Game over.' });
+}
+
 
         console.log('This is the game secret', game.secret);
 
@@ -188,7 +189,10 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
         const { correctNumbers, correctPositions } = evaluateGuess(game.secret, guess);
 
         // Update attempts
-        game.attemptsLeft -= 1;
+        if (game.mode === 'classic') {
+  game.attemptsLeft -= 1;
+}
+
 
         // Check for win condition
         if (correctPositions === 4) {

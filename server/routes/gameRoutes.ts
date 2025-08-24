@@ -92,9 +92,9 @@ router.post('/guess', loadGame, validateGuessInput, makeGuess, getCurrentGame, (
         attemptsLeft: res.locals.game.attemptsLeft,
         isWin: res.locals.game.isWin,
         isOver: res.locals.game.isOver,
-        mode: res.locals.game.mode,
-        startTime: res.locals.game.startTime,
-        timeLimit: res.locals.game.timeLimit,
+        // mode: res.locals.game.mode,
+        // startTime: res.locals.game.startTime,
+        // timeLimit: res.locals.game.timeLimit,
     });
 });
 
