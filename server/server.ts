@@ -51,7 +51,7 @@ app.post('/test-guess', (req, res) => {
 });
 
 // Serve static files from the dist directory
-const distPath = path.join(__dirname, '../dist');
+const distPath = path.join(__dirname, '../../dist');
 app.use(express.static(distPath));
 
 // Fallback: serve index.html for catch all route. Using regex because v5 doesnt allow for a * wildcard. Interesting.

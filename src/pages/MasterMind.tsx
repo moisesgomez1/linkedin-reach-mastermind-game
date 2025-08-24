@@ -3,6 +3,7 @@ import GuessInput from '@/components/GuessInput';
 import GuessFeedback from '@/components/GuessFeedback';
 import GuessHistory from '@/components/GuessHistory';
 import GameStatus from '@/components/GameStatus';
+import GameTimer from '@/components/GameTimer';
 
 // Types
 type GuessRecord = {
@@ -17,7 +18,11 @@ type GameStateResponse = {
     attemptsLeft: number;
     isWin: boolean;
     isOver: boolean;
+    mode: 'classic' | 'timed';
+    startTime: string | null;
+    timeLimit: number | null;
 };
+
 // Specific for feedback. Details of the result of the latest move made my the user. Depending on this data the game will either end or continue.
 export type LastResult = {
     guess: GuessRecord;
@@ -37,8 +42,17 @@ export default function Mastermind() {
     const [submitting, setSubmitting] = useState(false);
     const [loadingGame, setLoadingGame] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    // Basic validation for 4 digits 0–7
-    const canSubmit = guess.length === 4 && /^[0-7]{4}$/.test(guess) && !submitting && !isOver;
+
+    const [mode, setMode] = useState<'classic' | 'timed'>('classic');
+    const [startTime, setStartTime] = useState<string | null>(null);
+    const [timeLimit, setTimeLimit] = useState<number | null>(null);
+    const [timeExpired, setTimeExpired] = useState(false); // local UX-only lock
+
+    // This determines if the user can submit a guess based on whether the game is timed and if the time has expired.
+    const timedLock = mode === 'timed' && timeExpired;
+    // Basic validation for 4 digits 0–7, not submitting, game not over, and not locked by timer expiry.
+    const canSubmit =
+        guess.length === 4 && /^[0-7]{4}$/.test(guess) && !submitting && !isOver && !timedLock;
 
     // On mount, load current active game, it can be a fresh new game or an existing game based on the game data.
     useEffect(() => {
@@ -57,6 +71,13 @@ export default function Mastermind() {
                 setAttemptsLeft(data.attemptsLeft);
                 setIsOver(data.isOver);
                 setIsWin(data.isWin);
+
+                setMode(data.mode ?? 'classic');
+                setStartTime(data.startTime ?? null);
+                setTimeLimit(data.timeLimit ?? null);
+
+                // reset local timer lock when loading a new/other game
+                setTimeExpired(false);
             } catch (err: any) {
                 setError(err?.message ?? 'Failed to load game.');
             } finally {
@@ -110,6 +131,27 @@ export default function Mastermind() {
         }
     };
 
+    const handleTimeExpire = async () => {
+        try {
+            const res = await fetch('http://localhost:3000/api/game/expire', {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isOver: true }),
+            });
+
+            if (!res.ok) {
+                throw new Error(await res.text());
+            }
+
+            setTimeExpired(true);
+            setIsOver(true);
+        } catch (err: any) {
+            console.error('Failed to expire game:', err);
+            setTimeExpired(true); // fallback local lock
+        }
+    };
+
     if (loadingGame) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-black text-white">
@@ -128,12 +170,21 @@ export default function Mastermind() {
 
                 <GameStatus isOver={isOver} isWin={isWin} />
 
+                {mode === 'timed' && startTime && timeLimit !== null && (
+                    <GameTimer
+                        startTime={startTime}
+                        timeLimit={timeLimit}
+                        isOver={isOver}
+                        onExpire={handleTimeExpire}
+                    />
+                )}
+
                 <GuessInput
                     guess={guess}
                     setGuess={setGuess}
                     onSubmit={handleSubmit}
                     canSubmit={canSubmit}
-                    disabled={isOver} // disabled when game is over.
+                    disabled={isOver || timedLock} // disabled when game is over.
                     submitting={submitting}
                 />
 

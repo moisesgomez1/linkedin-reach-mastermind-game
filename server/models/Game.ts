@@ -4,9 +4,12 @@ import { sequelize } from '../config/db';
 type GameAttributes = {
     id: string;
     secret: number[];
-    attemptsLeft: number;
+    attemptsLeft: number | null; // null for timed mode
     isWin: boolean;
     isOver: boolean;
+    startTime: Date | null;
+    timeLimit: number | null;
+    mode: 'classic' | 'timed';
     createdAt?: Date;
     updatedAt?: Date;
 };
@@ -36,7 +39,7 @@ const Game = sequelize.define<GameInstance>(
         },
         attemptsLeft: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true, // null for timed mode
             defaultValue: 10,
         },
         isWin: {
@@ -48,6 +51,22 @@ const Game = sequelize.define<GameInstance>(
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false,
+        },
+        startTime: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
+        timeLimit: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
+        mode: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'classic',
+            validate: {
+                isIn: [['classic', 'timed']],
+            },
         },
     },
     {

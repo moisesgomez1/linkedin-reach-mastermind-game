@@ -45,10 +45,16 @@ export async function startGame(req: Request, res: Response, next: NextFunction)
         // Get secret from res.locals
         const secret: number[] = res.locals.secret;
 
+        // Introducing game modes
+        const mode = req.body?.mode === 'timed' ? 'timed' : 'classic';
+
         // Create a new Game record in the database
         const newGame = await Game.create({
             secret,
-            attemptsLeft: 10,
+            attemptsLeft: mode === 'classic' ? 10 : null, // use null or a high number
+            mode,
+            startTime: mode === 'timed' ? new Date() : null, //will be null for classic mode
+            timeLimit: mode === 'timed' ? 60 : null, // 60 seconds for timed mode, null for classic
         });
         res.locals.game = newGame;
         next();
@@ -151,8 +157,28 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
 
         console.log('game from res.locals', res.locals.game);
 
-        // Check if game is still active
-        if (game.attemptsLeft <= 0) {
+        // Enforce timer logic for 'timed' mode
+        if (game.mode === 'timed') {
+            if (!game.startTime || !game.timeLimit) {
+                return res
+                    .status(500)
+                    .json({ error: 'Timed game is missing timing configuration.' });
+            }
+
+            const now = new Date();
+            const elapsed = (now.getTime() - new Date(game.startTime).getTime()) / 1000; //get elapsed time in seconds
+            console.log('Elapsed time in seconds:', elapsed);
+
+            if (elapsed > game.timeLimit) {
+                // if elapsed time exceeds time limit then game is over and we updated isOver to true.
+                game.isOver = true;
+                await game.save();
+                return res.status(400).json({ error: 'Time is up! Game over.' });
+            }
+        }
+
+        // Check if game is still active depending on mode
+        if (game.mode === 'classic' && game.attemptsLeft <= 0) {
             return res.status(400).json({ error: 'No attempts remaining. Game over.' });
         }
 
@@ -162,7 +188,9 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
         const { correctNumbers, correctPositions } = evaluateGuess(game.secret, guess);
 
         // Update attempts
-        game.attemptsLeft -= 1;
+        if (game.mode === 'classic') {
+            game.attemptsLeft -= 1;
+        }
 
         // Check for win condition
         if (correctPositions === 4) {
@@ -253,7 +281,17 @@ export function validateGuessInput(req: Request, res: Response, next: NextFuncti
 export async function listGames(_req: Request, res: Response, next: NextFunction) {
     try {
         const games = await Game.findAll({
-            attributes: ['id', 'attemptsLeft', 'isWin', 'isOver', 'createdAt', 'updatedAt'],
+            attributes: [
+                'id',
+                'attemptsLeft',
+                'isWin',
+                'isOver',
+                'mode',
+                'startTime',
+                'timeLimit',
+                'createdAt',
+                'updatedAt',
+            ],
             order: [['createdAt', 'DESC']],
         });
 
@@ -323,6 +361,32 @@ export async function getCurrentGame(_req: Request, res: Response, next: NextFun
         });
 
         res.locals.history = history;
+        return next();
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * Middleware to mark the current game as expired.
+ *
+ * - Retrieves the `game` object from `res.locals.game` (populated by earlier middleware).
+ * - Sets `isOver = true` on the game instance and saves the change to the database.
+ * - Does not send a response; the frontend is responsible for handling UI updates after expiration.
+ * - Typically triggered when the game is considered complete (e.g., timer expiration in timed mode).
+ *
+ * @async
+ * @param {Request} _req - The HTTP request object (not used).
+ * @param {Response} res - The HTTP response object; used to access and modify the current game.
+ * @param {NextFunction} next - Callback to pass control to the next middleware or error handler.
+ *
+ * @returns {void} Calls `next()` after updating the game, or passes an error to the handler.
+ */
+export async function expireGame(_req: Request, res: Response, next: NextFunction) {
+    try {
+        const game = res.locals.game;
+        game.isOver = true;
+        await game.save();
         return next();
     } catch (err) {
         next(err);

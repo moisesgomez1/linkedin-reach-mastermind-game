@@ -3,6 +3,9 @@ type GameSummary = {
     attemptsLeft: number;
     isWin: boolean;
     isOver: boolean;
+    mode: 'classic' | 'timed';
+    startTime: string | null;
+    timeLimit: number | null;
     createdAt: string;
     updatedAt: string;
 };
@@ -39,6 +42,20 @@ export default function GameList({ games, onSelect }: GameListProps) {
                             ].join(' ')}
                         >
                             {g.isOver ? (g.isWin ? 'Won' : 'Over') : 'Active'}
+                        </span>
+                    </div>
+                    {/*div that displays the game mode whether classic or timed*/}
+
+                    <div className="mt-2">
+                        <span
+                            className={[
+                                'text-xs font-semibold rounded-full px-0.5 py-0.5',
+                                g.mode === 'classic'
+                                    ? 'bg-purple-100 text-purple-700'
+                                    : 'bg-yellow-100 text-yellow-700',
+                            ].join(' ')}
+                        >
+                            {g.mode === 'classic' ? 'Classic Mode' : 'Timed Mode'}
                         </span>
                     </div>
 

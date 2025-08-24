@@ -25,8 +25,12 @@ export default function GuessHistory({ history = [] }: Props) {
                             {entry.guess.join(' ')}
                         </div>
                         <div className="flex justify-between mt-2 text-sm">
-                            <span className="text-green-400">🎯 {entry.correctPositions} Correct Location</span>
-                            <span className="text-cyan-400">🔢 {entry.correctNumbers} Correct Number</span>
+                            <span className="text-green-400">
+                                🎯 {entry.correctPositions} Correct Location
+                            </span>
+                            <span className="text-cyan-400">
+                                🔢 {entry.correctNumbers} Correct Number
+                            </span>
                         </div>
                     </li>
                 ))}
