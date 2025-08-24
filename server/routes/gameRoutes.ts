@@ -69,6 +69,9 @@ router.get('/game', loadGame, getCurrentGame, (req, res) => {
         attemptsLeft: res.locals.game.attemptsLeft,
         isWin: res.locals.game.isWin,
         isOver: res.locals.game.isOver,
+        mode: res.locals.game.mode,
+        startTime: res.locals.game.startTime,
+        timeLimit: res.locals.game.timeLimit,
     });
 });
 
