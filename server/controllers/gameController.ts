@@ -281,7 +281,17 @@ export function validateGuessInput(req: Request, res: Response, next: NextFuncti
 export async function listGames(_req: Request, res: Response, next: NextFunction) {
     try {
         const games = await Game.findAll({
-            attributes: ['id', 'attemptsLeft', 'isWin', 'isOver', 'createdAt', 'updatedAt'],
+            attributes: [
+                'id',
+                'attemptsLeft',
+                'isWin',
+                'isOver',
+                'mode',
+                'startTime',
+                'timeLimit',
+                'createdAt',
+                'updatedAt',
+            ],
             order: [['createdAt', 'DESC']],
         });
 
@@ -351,6 +361,32 @@ export async function getCurrentGame(_req: Request, res: Response, next: NextFun
         });
 
         res.locals.history = history;
+        return next();
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * Middleware to mark the current game as expired.
+ *
+ * - Retrieves the `game` object from `res.locals.game` (populated by earlier middleware).
+ * - Sets `isOver = true` on the game instance and saves the change to the database.
+ * - Does not send a response; the frontend is responsible for handling UI updates after expiration.
+ * - Typically triggered when the game is considered complete (e.g., timer expiration in timed mode).
+ *
+ * @async
+ * @param {Request} _req - The HTTP request object (not used).
+ * @param {Response} res - The HTTP response object; used to access and modify the current game.
+ * @param {NextFunction} next - Callback to pass control to the next middleware or error handler.
+ *
+ * @returns {void} Calls `next()` after updating the game, or passes an error to the handler.
+ */
+export async function expireGame(_req: Request, res: Response, next: NextFunction) {
+    try {
+        const game = res.locals.game;
+        game.isOver = true;
+        await game.save();
         return next();
     } catch (err) {
         next(err);

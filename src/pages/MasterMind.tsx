@@ -131,6 +131,27 @@ export default function Mastermind() {
         }
     };
 
+    const handleTimeExpire = async () => {
+        try {
+            const res = await fetch('http://localhost:3000/api/game/expire', {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isOver: true }),
+            });
+
+            if (!res.ok) {
+                throw new Error(await res.text());
+            }
+
+            setTimeExpired(true);
+            setIsOver(true);
+        } catch (err: any) {
+            console.error('Failed to expire game:', err);
+            setTimeExpired(true); // fallback local lock
+        }
+    };
+
     if (loadingGame) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-black text-white">
@@ -154,7 +175,7 @@ export default function Mastermind() {
                         startTime={startTime}
                         timeLimit={timeLimit}
                         isOver={isOver}
-                        onExpire={() => setTimeExpired(true)}
+                        onExpire={handleTimeExpire}
                     />
                 )}
 

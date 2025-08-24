@@ -9,6 +9,7 @@ import {
     listGames,
     selectGame,
     getCurrentGame,
+    expireGame,
 } from '../controllers/gameController';
 
 const router = express.Router();
@@ -96,6 +97,21 @@ router.post('/guess', loadGame, validateGuessInput, makeGuess, getCurrentGame, (
         // startTime: res.locals.game.startTime,
         // timeLimit: res.locals.game.timeLimit,
     });
+});
+
+/**
+ * Marks the current game as expired.
+ *
+ * - Retrieves the current game via middleware.
+ * - Sets `isOver = true` and saves the update.
+ * - Typically used when a game times out (e.g., in timed mode).
+ * - Does not affect game mode or score, only marks it as complete.
+ *
+ * @route PUT /game/expire
+ * @returns {Object} Confirmation message indicating the game was marked as expired.
+ */
+router.put('/game/expire', loadGame, expireGame, (req, res) => {
+    res.status(200).json({ message: 'Game expired due to time limit.' });
 });
 
 export default router;
