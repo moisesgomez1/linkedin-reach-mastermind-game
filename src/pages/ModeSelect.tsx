@@ -15,7 +15,11 @@ export default function ModeSelect() {
                 body: JSON.stringify({ mode }),
             });
 
-            if (!res.ok) throw new Error(await res.text());
+            const result = await res.json();
+
+            if (!result.success) {
+                throw new Error(result.message || 'Failed to start game.');
+            }
 
             navigate('/mastermind');
         } catch (err) {

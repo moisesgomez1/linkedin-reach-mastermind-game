@@ -2,15 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StartButton from '../components/StartButton';
 import GameList from '@/components/GamesList';
-
-type GameSummary = {
-    id: string;
-    attemptsLeft: number;
-    isWin: boolean;
-    isOver: boolean;
-    createdAt: string;
-    updatedAt: string;
-};
+import { GameSummary } from '@/components/GamesList';
 
 export default function Home() {
     const [loading, setLoading] = useState(false);
@@ -35,12 +27,16 @@ export default function Home() {
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
             });
-            if (!res.ok) throw new Error(await res.text());
-            const data = await res.json();
-            setGames(data.games ?? []);
+
+            const result = await res.json();
+
+            if (!result.success) {
+                throw new Error(result.message || 'Failed to load games.');
+            }
+            setGames(result.data?.games ?? []);
         } catch (err: any) {
             console.error(err);
-            setError(err?.message ?? 'Failed to load games.');
+            setError(err.message || 'Something went wrong.');
         } finally {
             setListLoading(false);
         }
@@ -53,12 +49,16 @@ export default function Home() {
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
             });
-            if (!res.ok) throw new Error(await res.text());
+            const result = await res.json();
+
+            if (!result.success) {
+                throw new Error(result.message || 'Failed to select game.');
+            }
             // cookie now points to selected game → go to play screen
             navigate('/mastermind');
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            alert('Failed to select game.');
+            alert(err.message || 'Failed to select game.');
         }
     };
 

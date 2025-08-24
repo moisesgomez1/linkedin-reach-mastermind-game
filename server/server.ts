@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 dotenv.config();
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import { sequelize } from './config/db';
 import './models';
@@ -57,6 +57,22 @@ app.use(express.static(distPath));
 // Fallback: serve index.html for catch all route. Using regex because v5 doesnt allow for a * wildcard. Interesting.
 app.get(/.*/, (_req: Request, res: Response) => {
     res.sendFile(path.join(distPath, 'index.html'));
+});
+
+/**
+ * Global error-handling middleware.
+ * Catches any errors passed with next(err) and sends a structured JSON response.
+ * Logs the full error stack to the server console, but hides it from the client.
+ */
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+    console.error('Unhandled error:', err.stack);
+
+    const statusCode = res.statusCode && res.statusCode !== 200 ? res.statusCode : 500;
+
+    res.status(statusCode).json({
+        success: false,
+        message: err.message || 'Internal server error',
+    });
 });
 
 // Start server and sync database

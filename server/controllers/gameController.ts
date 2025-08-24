@@ -18,7 +18,10 @@ export async function fetchSecret(_req: Request, res: Response, next: NextFuncti
     try {
         const secret = await createGameSecret();
         if (!Array.isArray(secret) || secret.length !== 4) {
-            return res.status(502).json({ error: 'Failed to generate a valid secret.' });
+            return res.status(502).json({
+                succcess: false,
+                message: 'Failed to generate a valid secret.',
+            });
         }
         res.locals.secret = secret;
         next();
@@ -117,13 +120,19 @@ export async function loadGame(req: Request, res: Response, next: NextFunction) 
         const gameId = req.cookies?.gameId;
         console.log('cookies:', req.cookies, 'gameId:', gameId);
         if (!gameId) {
-            return res.status(400).json({ error: 'Missing gameId cookie.' });
+            return res.status(400).json({
+                success: false,
+                message: 'Missing gameId cookie.',
+            });
         }
 
         // making a query to find the game by the uuid
         const game = await Game.findByPk(gameId);
         if (!game) {
-            return res.status(404).json({ error: 'Game not found.' });
+            return res.status(404).json({
+                success: false,
+                message: 'Game not found.',
+            });
         }
 
         res.locals.gameId = gameId;
@@ -160,9 +169,10 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
         // Enforce timer logic for 'timed' mode
         if (game.mode === 'timed') {
             if (!game.startTime || !game.timeLimit) {
-                return res
-                    .status(500)
-                    .json({ error: 'Timed game is missing timing configuration.' });
+                return res.status(500).json({
+                    success: false,
+                    message: 'Timed game is missing timing configuration.',
+                });
             }
 
             const now = new Date();
@@ -173,13 +183,19 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
                 // if elapsed time exceeds time limit then game is over and we updated isOver to true.
                 game.isOver = true;
                 await game.save();
-                return res.status(400).json({ error: 'Time is up! Game over.' });
+                return res.status(400).json({
+                    success: false,
+                    message: 'Time is up! Game over.',
+                });
             }
         }
 
         // Check if game is still active depending on mode
         if (game.mode === 'classic' && game.attemptsLeft <= 0) {
-            return res.status(400).json({ error: 'No attempts remaining. Game over.' });
+            return res.status(400).json({
+                success: false,
+                message: 'No attempts remaining. Game over.',
+            });
         }
 
         console.log('This is the game secret', game.secret);
@@ -246,16 +262,28 @@ export function validateGuessInput(req: Request, res: Response, next: NextFuncti
     const { guess } = req.body;
 
     if (!Array.isArray(guess)) {
-        return res.status(400).json({ error: 'guess must be an array.' });
+        return res.status(400).json({
+            success: false,
+            message: 'guess must be an array.',
+        });
     }
     if (guess.length !== 4) {
-        return res.status(400).json({ error: 'guess must contain exactly 4 numbers.' });
+        return res.status(400).json({
+            success: false,
+            message: 'guess must contain exactly 4 numbers.',
+        });
     }
     if (guess.some((n) => typeof n !== 'number' || !Number.isInteger(n))) {
-        return res.status(400).json({ error: 'guess must contain integers.' });
+        return res.status(400).json({
+            success: false,
+            message: 'guess must contain integers.',
+        });
     }
     if (guess.some((n) => n < 0 || n > 7)) {
-        return res.status(400).json({ error: 'each number must be between 0 and 7.' });
+        return res.status(400).json({
+            success: false,
+            message: 'each number must be between 0 and 7.',
+        });
     }
 
     next();
@@ -296,7 +324,9 @@ export async function listGames(_req: Request, res: Response, next: NextFunction
         });
 
         res.status(200).json({
-            games,
+            success: true,
+            data: { games },
+            message: 'Games retrieved successfully',
         });
     } catch (err) {
         next(err);
@@ -327,7 +357,10 @@ export async function selectGame(req: Request, res: Response, next: NextFunction
 
         const game = await Game.findByPk(id);
         if (!game) {
-            return res.status(404).json({ error: 'Game not found.' });
+            return res.status(404).json({
+                success: false,
+                message: 'Game not found.',
+            });
         }
 
         res.locals.game = game;
