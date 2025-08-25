@@ -1,4 +1,4 @@
-type GameSummary = {
+export type GameSummary = {
     id: string;
     attemptsLeft: number;
     isWin: boolean;

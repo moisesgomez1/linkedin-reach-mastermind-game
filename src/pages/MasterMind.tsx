@@ -13,7 +13,7 @@ type GuessRecord = {
     correctPositions: number;
 };
 
-type GameStateResponse = {
+type GameStateData = {
     guesses: GuessRecord[];
     attemptsLeft: number;
     isWin: boolean;
@@ -21,6 +21,12 @@ type GameStateResponse = {
     mode: 'classic' | 'timed';
     startTime: string | null;
     timeLimit: number | null;
+};
+
+type GameStateResponse = {
+    success: boolean;
+    message: string;
+    data: GameStateData;
 };
 
 // Specific for feedback. Details of the result of the latest move made my the user. Depending on this data the game will either end or continue.
@@ -63,22 +69,26 @@ export default function Mastermind() {
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                 });
-                if (!res.ok) throw new Error(await res.text());
 
-                const data: GameStateResponse = await res.json();
+                const result: GameStateResponse = await res.json();
 
-                setGuessHistory(data.guesses);
-                setAttemptsLeft(data.attemptsLeft);
-                setIsOver(data.isOver);
-                setIsWin(data.isWin);
+                if (!result.success) {
+                    throw new Error(result.message || 'Failed to load game');
+                }
 
-                setMode(data.mode ?? 'classic');
-                setStartTime(data.startTime ?? null);
-                setTimeLimit(data.timeLimit ?? null);
+                setGuessHistory(result.data?.guesses);
+                setAttemptsLeft(result.data?.attemptsLeft);
+                setIsOver(result.data?.isOver);
+                setIsWin(result.data?.isWin);
+
+                setMode(result.data?.mode ?? 'classic');
+                setStartTime(result.data?.startTime ?? null);
+                setTimeLimit(result.data?.timeLimit ?? null);
 
                 // reset local timer lock when loading a new/other game
                 setTimeExpired(false);
             } catch (err: any) {
+                console.error(err);
                 setError(err?.message ?? 'Failed to load game.');
             } finally {
                 setLoadingGame(false);
@@ -102,24 +112,27 @@ export default function Mastermind() {
                 body: JSON.stringify({ guess: guess.split('').map(Number) }),
             });
 
-            if (!res.ok) throw new Error(await res.text());
+            const result: GameStateResponse = await res.json();
 
-            const data: GameStateResponse = await res.json();
+            if (!result.success) {
+                throw new Error(result.message || 'Failed to submit guess.');
+            }
+
             // Update fields from payload
-            setGuessHistory(data.guesses);
-            setAttemptsLeft(data.attemptsLeft);
-            setIsOver(data.isOver);
-            setIsWin(data.isWin);
+            setGuessHistory(result.data?.guesses);
+            setAttemptsLeft(result.data?.attemptsLeft);
+            setIsOver(result.data?.isOver);
+            setIsWin(result.data?.isWin);
 
             /*We are doing this because when a user makes a guess we want to
       give them feedback of their last move. We update the setLastResult state setter to the latest element in the data.guesses object.*/
-            const last = data.guesses[data.guesses.length - 1];
+            const last = result.data?.guesses[result.data?.guesses.length - 1];
             if (last) {
                 setLastResult({
                     guess: last,
-                    attemptsLeft: data.attemptsLeft,
-                    isWin: data.isWin,
-                    isOver: data.isOver,
+                    attemptsLeft: result.data.attemptsLeft,
+                    isWin: result.data.isWin,
+                    isOver: result.data.isOver,
                 });
             }
 
@@ -140,8 +153,10 @@ export default function Mastermind() {
                 body: JSON.stringify({ isOver: true }),
             });
 
-            if (!res.ok) {
-                throw new Error(await res.text());
+            const result = await res.json();
+
+            if (!result.success) {
+                throw new Error(result.message || 'Failed to expire game.');
             }
 
             setTimeExpired(true);
