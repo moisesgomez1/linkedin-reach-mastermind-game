@@ -198,6 +198,14 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
             });
         }
 
+        //if game is already won or over then we should not allow more guesses. This more so works for the classic mode.
+        if (game.isOver) {
+            return res.status(400).json({
+                success: false,
+                message: 'Game is already over.',
+            });
+        }
+
         console.log('This is the game secret', game.secret);
 
         // Evaluate the guess with the util function we imported
@@ -418,6 +426,11 @@ export async function getCurrentGame(_req: Request, res: Response, next: NextFun
 export async function expireGame(_req: Request, res: Response, next: NextFunction) {
     try {
         const game = res.locals.game;
+
+        if (game.isOver) {
+            // Game is already expired — optionally log this or return early
+            return next(); // Just proceed without changes
+        }
         game.isOver = true;
         await game.save();
         return next();

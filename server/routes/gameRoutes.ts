@@ -66,7 +66,7 @@ router.post('/games/:id/select', selectGame, setGameCookie, (req, res) => {
  * Requires a valid `gameId` cookie.
  *
  * @route GET /game
- * @returns {Object} Game state: guesses, attempts left, win/loss/over status.
+ * @returns {Object} Game state: guesses, attempts left, win/loss/over status, mode, startTime and timeLimit depending on the mode or else null.
  */
 
 router.get('/game', loadGame, getCurrentGame, (req, res) => {
@@ -123,7 +123,7 @@ router.post('/guess', loadGame, validateGuessInput, makeGuess, getCurrentGame, (
 router.put('/game/expire', loadGame, expireGame, (req, res) => {
     res.status(200).json({
         success: true,
-        message: 'Game expired due to time limit.',
+        message: 'Game expired successfully.',
     });
 });
 
