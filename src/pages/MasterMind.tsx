@@ -21,6 +21,7 @@ type GameStateData = {
     mode: 'classic' | 'timed';
     startTime: string | null;
     timeLimit: number | null;
+    secret?: number[]; // the secret is optional and only sent at game end
 };
 
 type GameStateResponse = {
@@ -35,6 +36,7 @@ export type LastResult = {
     attemptsLeft: number;
     isWin: boolean;
     isOver: boolean;
+    secret?: number[];
 };
 
 export default function Mastermind() {
@@ -48,6 +50,7 @@ export default function Mastermind() {
     const [submitting, setSubmitting] = useState(false);
     const [loadingGame, setLoadingGame] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [secret, setSecret] = useState<number[] | null>(null);
 
     const [mode, setMode] = useState<'classic' | 'timed'>('classic');
     const [startTime, setStartTime] = useState<string | null>(null);
@@ -80,6 +83,7 @@ export default function Mastermind() {
                 setAttemptsLeft(result.data?.attemptsLeft);
                 setIsOver(result.data?.isOver);
                 setIsWin(result.data?.isWin);
+                setSecret(result.data?.secret ?? null); // set secret if provided (game over)
 
                 setMode(result.data?.mode ?? 'classic');
                 setStartTime(result.data?.startTime ?? null);
@@ -123,6 +127,7 @@ export default function Mastermind() {
             setAttemptsLeft(result.data?.attemptsLeft);
             setIsOver(result.data?.isOver);
             setIsWin(result.data?.isWin);
+            setSecret(result.data?.secret ?? null);
 
             /*We are doing this because when a user makes a guess we want to
       give them feedback of their last move. We update the setLastResult state setter to the latest element in the data.guesses object.*/
@@ -133,6 +138,7 @@ export default function Mastermind() {
                     attemptsLeft: result.data.attemptsLeft,
                     isWin: result.data.isWin,
                     isOver: result.data.isOver,
+                    secret: result.data.secret,
                 });
             }
 
@@ -161,6 +167,7 @@ export default function Mastermind() {
 
             setTimeExpired(true);
             setIsOver(true);
+            setSecret(result.data?.secret ?? null);
         } catch (err: any) {
             console.error('Failed to expire game:', err);
             setTimeExpired(true); // fallback local lock
@@ -183,7 +190,7 @@ export default function Mastermind() {
                     MASTERMIND
                 </h1>
 
-                <GameStatus isOver={isOver} isWin={isWin} />
+                <GameStatus isOver={isOver} isWin={isWin} secret={secret} />
 
                 {mode === 'timed' && startTime && timeLimit !== null && (
                     <GameTimer
@@ -209,7 +216,7 @@ export default function Mastermind() {
             </div>
 
             {/* Guess History Sidebar */}
-            <div className="w-96 p-6 overflow-y-auto bg-gray-950 border-l border-gray-800">
+            <div className="w-96 h-screen p-6 overflow-y-auto bg-gray-950 border-l border-gray-800">
                 <GuessHistory history={guessHistory} />
             </div>
         </div>

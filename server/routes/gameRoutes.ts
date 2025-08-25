@@ -80,6 +80,7 @@ router.get('/game', requireAuth, loadGame, getCurrentGame, (req, res) => {
             isWin: res.locals.game.isWin,
             isOver: res.locals.game.isOver,
             mode: res.locals.game.mode,
+            secret: res.locals.game.isOver ? res.locals.game.secret : undefined,
             startTime: res.locals.game.startTime,
             timeLimit: res.locals.game.timeLimit,
         },
@@ -106,6 +107,11 @@ router.post(
     makeGuess,
     getCurrentGame,
     (req, res) => {
+        const latestGuess = res.locals.history[res.locals.history.length - 1];
+        const { correctNumbers, correctPositions } = latestGuess;
+
+        const message = `${correctNumbers} correct number${correctNumbers !== 1 ? 's' : ''} and ${correctPositions} correct location${correctPositions !== 1 ? 's' : ''}`;
+
         res.status(200).json({
             success: true,
             data: {
@@ -113,8 +119,9 @@ router.post(
                 attemptsLeft: res.locals.game.attemptsLeft,
                 isWin: res.locals.game.isWin,
                 isOver: res.locals.game.isOver,
+                secret: res.locals.game.isOver ? res.locals.game.secret : undefined,
             },
-            message: 'Guess processed successfully.',
+            message,
         });
     }
 );
@@ -133,6 +140,9 @@ router.post(
 router.put('/game/expire', requireAuth, loadGame, expireGame, (req, res) => {
     res.status(200).json({
         success: true,
+        data: {
+            secret: res.locals.game?.secret,
+        },
         message: 'Game expired successfully.',
     });
 });

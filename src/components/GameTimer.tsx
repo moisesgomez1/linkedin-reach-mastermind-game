@@ -48,7 +48,7 @@ export default function GameTimer({ startTime, timeLimit, isOver, onExpire }: Ga
             }`}
             aria-live="polite"
         >
-            {isOver ? 'Game Over' : `Time Left: ${timeLeft}s`}
+            {isOver ? '' : `Time Left: ${timeLeft}s`}
         </div>
     );
 }

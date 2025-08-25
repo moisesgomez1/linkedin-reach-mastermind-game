@@ -4,7 +4,7 @@ import { hashPassword, comparePasswords, generateToken } from '../utils/auth';
 
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super-secret';
+const JWT_SECRET: string = process.env.JWT_SECRET!;
 
 export async function signup(req: Request, res: Response, next: NextFunction) {
     try {
