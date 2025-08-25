@@ -43,7 +43,6 @@ app.use('/api', gameRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-
 app.get('/test-game', async (_req, res) => {
     const secret = await createGameSecret();
     res.status(200).json({ secret });
