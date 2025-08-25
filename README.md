@@ -15,8 +15,7 @@
 * [How the app flows (end-to-end)](#how-the-app-flows-end-to-end)  
 * [API cheat sheet](#api-cheat-sheet)  
 * [Frontend flow](#frontend-flow)  
-* [Engineering story](#engineering-story)  
-* [Design notes (short recap)](#design-notes-short-recap)  
+* [Engineering story](#engineering-story)   
 * [Implemented Extensions](#implemented-extensions)  
 * [What’s next](#whats-next)
 
