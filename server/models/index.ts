@@ -9,4 +9,4 @@ Game.belongsTo(User, { foreignKey: 'userId' });
 Game.hasMany(GameHistory, { foreignKey: 'gameId', as: 'history' });
 GameHistory.belongsTo(Game, { foreignKey: 'gameId' });
 
-export { Game, GameHistory };
+export { Game, GameHistory, User };
