@@ -127,7 +127,7 @@ Open:
 
 ## Environment Variables Docker
 
-Create a `.env.docker` file and copy these values provided in the email into the file:
+Create a `.env.docker` file and copy the values provided in the email into the file:
 
 ## Environment Variables
 Create a `.env` file and copy the values provided in the email into the file:
