@@ -48,6 +48,8 @@ export async function startGame(req: Request, res: Response, next: NextFunction)
         // Get secret from res.locals
         const secret: number[] = res.locals.secret;
 
+        const userId = (req as any).userId; // getting the user from requireAuth middleware
+
         // Introducing game modes
         const mode = req.body?.mode === 'timed' ? 'timed' : 'classic';
 
@@ -58,6 +60,7 @@ export async function startGame(req: Request, res: Response, next: NextFunction)
             mode,
             startTime: mode === 'timed' ? new Date() : null, //will be null for classic mode
             timeLimit: mode === 'timed' ? 60 : null, // 60 seconds for timed mode, null for classic
+            userId, // associating the game with the user who started it.
         });
         res.locals.game = newGame;
         next();
@@ -314,9 +317,12 @@ export function validateGuessInput(req: Request, res: Response, next: NextFuncti
  * @returns {void} Sends a `200 OK` response with `{ games: Game[] }` if successful,
  *                 or calls `next(err)` on failure.
  */
-export async function listGames(_req: Request, res: Response, next: NextFunction) {
+export async function listGames(req: Request, res: Response, next: NextFunction) {
     try {
+        const userId = (req as any).userId; // getting the user from requireAuth middleware
+
         const games = await Game.findAll({
+            where: { userId }, // only fetch games for the authenticated user
             attributes: [
                 'id',
                 'attemptsLeft',

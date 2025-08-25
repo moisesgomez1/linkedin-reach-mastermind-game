@@ -10,6 +10,7 @@ type GameAttributes = {
     startTime: Date | null;
     timeLimit: number | null;
     mode: 'classic' | 'timed';
+    userId: string;
     createdAt?: Date;
     updatedAt?: Date;
 };
@@ -66,6 +67,14 @@ const Game = sequelize.define<GameInstance>(
             defaultValue: 'classic',
             validate: {
                 isIn: [['classic', 'timed']],
+            },
+        },
+        userId: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            references: {
+                model: 'users',
+                key: 'id',
             },
         },
     },
