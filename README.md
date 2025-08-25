@@ -306,7 +306,7 @@ Early on I let the client send `gameId` in the body. It worked, but it was noisy
 ### CORS, proxies and cookies
 Dev was HTTP + a frontend dev server proxy. At first the cookie got “stuck” on the proxy port. The practical fix was to **call the API origin directly** from the client during dev and use `sameSite:'lax'` with `secure:false`. Not pretty, but it removed the mystery.
 
-### The three‑hour, one‑line Tailwind fix
+### The two‑hour, one‑line Tailwind fix
 I chased config for a while (PostCSS, file extensions, old docs) before realizing Tailwind v4 just wants a single `@tailwind` import in `index.css`. I was using a previous configuration file and that setup was deprecated. Lesson learned. 
 
 ### Adding authentication last
