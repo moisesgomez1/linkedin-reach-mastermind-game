@@ -107,6 +107,11 @@ router.post(
     makeGuess,
     getCurrentGame,
     (req, res) => {
+        const latestGuess = res.locals.history[res.locals.history.length - 1];
+        const { correctNumbers, correctPositions } = latestGuess;
+
+        const message = `${correctNumbers} correct number${correctNumbers !== 1 ? 's' : ''} and ${correctPositions} correct location${correctPositions !== 1 ? 's' : ''}`;
+
         res.status(200).json({
             success: true,
             data: {
@@ -116,7 +121,7 @@ router.post(
                 isOver: res.locals.game.isOver,
                 secret: res.locals.game.isOver ? res.locals.game.secret : undefined,
             },
-            message: 'Guess processed successfully.',
+            message,
         });
     }
 );

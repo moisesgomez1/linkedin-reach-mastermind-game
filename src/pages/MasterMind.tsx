@@ -50,7 +50,7 @@ export default function Mastermind() {
     const [submitting, setSubmitting] = useState(false);
     const [loadingGame, setLoadingGame] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [secret, setSecret] = useState<number[] | null>(null); 
+    const [secret, setSecret] = useState<number[] | null>(null);
 
     const [mode, setMode] = useState<'classic' | 'timed'>('classic');
     const [startTime, setStartTime] = useState<string | null>(null);
