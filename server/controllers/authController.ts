@@ -95,7 +95,6 @@ export async function getMe(req: Request, res: Response) {
     }
 }
 
-
 export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies?.token;
 
