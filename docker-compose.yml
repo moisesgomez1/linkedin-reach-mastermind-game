@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+    db:
+        image: postgres:14
+        restart: always
+        env_file: .env.docker
+        # Don't publish 5432 unless you need host access
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB || exit 1']
+            interval: 5s
+            timeout: 5s
+            retries: 10
+
+    app:
+        build: .
+        depends_on:
+            db:
+                condition: service_healthy
+        env_file: .env.docker
+        ports:
+            - '3000:3000'
+        command: ['./wait-for-postgres.sh', 'db', 'npm', 'start']
+        # No volumes in prod
+
+volumes:
+    pgdata:

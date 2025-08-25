@@ -1,0 +1,380 @@
+openapi: 3.0.3
+info:
+  title: Mastermind Game API
+  description: API for playing the Mastermind game, supporting classic and timed modes.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/api
+
+tags:
+  - name: Game
+    description: Routes related to game sessions
+  - name: Auth
+    description: Routes related to user authentication
+
+security:
+  - cookieAuth: []
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+
+paths:
+  /auth/signup:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Account created successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Account created successfully.
+                data:
+                  id: user-id
+                  username: user1
+        '400':
+          description: Username already taken
+          content:
+            application/json:
+              example:
+                success: false
+                message: Username is already taken.
+
+  /auth/login:
+    post:
+      summary: Login a user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              example:
+                success: true
+                message: Login successful.
+                data:
+                  id: user-id
+                  username: user1
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              example:
+                success: false
+                message: Invalid username or password.
+
+  /auth/logout:
+    post:
+      summary: Logout the current user
+      tags: [Auth]
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              example:
+                success: true
+                message: Logout successful.
+
+  /auth/me:
+    get:
+      summary: Get authenticated user info
+      tags: [Auth]
+      responses:
+        '200':
+          description: Authenticated user data
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  id: user-id
+                  username: user1
+        '401':
+          description: Unauthorized or invalid token
+          content:
+            application/json:
+              example:
+                success: false
+                message: Unauthorized
+
+  /start:
+    post:
+      summary: Start a new Mastermind game
+      tags: [Game]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mode:
+                  type: string
+                  enum: [classic, timed]
+                  example: timed
+      responses:
+        '201':
+          description: Game started successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: New game started.
+        '502':
+          description: Failed to generate a valid secret
+          content:
+            application/json:
+              example:
+                success: false
+                message: Failed to generate a valid secret.
+
+  /game:
+    get:
+      summary: Get current game state
+      tags: [Game]
+      parameters:
+        - name: gameId
+          in: cookie
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current game state retrieved
+          content:
+            application/json:
+              example:
+                success: true
+                message: Current game state retrieved.
+                data:
+                  guesses: []
+                  attemptsLeft: null
+                  isWin: false
+                  isOver: false
+                  mode: timed
+                  secret: [1, 2, 3, 4]
+                  startTime: '2025-08-25T01:07:50.422Z'
+                  timeLimit: 60
+        '400':
+          description: Missing gameId cookie
+          content:
+            application/json:
+              example:
+                success: false
+                message: Missing gameId cookie.
+        '404':
+          description: Game not found
+          content:
+            application/json:
+              example:
+                success: false
+                message: Game not found.
+
+  /guess:
+    post:
+      summary: Submit a guess
+      tags: [Game]
+      parameters:
+        - name: gameId
+          in: cookie
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                guess:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2, 3, 4]
+      responses:
+        '200':
+          description: Guess processed
+          content:
+            application/json:
+              example:
+                success: true
+                message: 2 correct numbers and 1 correct location
+                data:
+                  guesses:
+                    - id: 'abc123'
+                      guess: [1, 2, 3, 4]
+                      correctNumbers: 2
+                      correctPositions: 1
+                      createdAt: '2025-08-25T01:19:40.639Z'
+                  attemptsLeft: 8
+                  isWin: false
+                  isOver: false
+                  secret: [1, 2, 3, 4]
+        '400':
+          description: Invalid or rejected guess
+          content:
+            application/json:
+              examples:
+                notArray:
+                  summary: Not an array
+                  value:
+                    success: false
+                    message: guess must be an array.
+                wrongLength:
+                  summary: Wrong length
+                  value:
+                    success: false
+                    message: guess must contain exactly 4 numbers.
+                notInteger:
+                  summary: Not integer
+                  value:
+                    success: false
+                    message: guess must contain integers.
+                outOfBounds:
+                  summary: Out of range
+                  value:
+                    success: false
+                    message: each number must be between 0 and 7.
+                classicOver:
+                  summary: Classic mode - no attempts
+                  value:
+                    success: false
+                    message: No attempts remaining. Game over.
+                    secret: [1, 2, 3, 4]
+                alreadyOver:
+                  summary: Game already over
+                  value:
+                    success: false
+                    message: Game is already over.
+                timeUp:
+                  summary: Timed game expired
+                  value:
+                    success: false
+                    message: Time is up! Game over.
+                    secret: [1, 2, 3, 4]
+        '500':
+          description: Timed game is missing timing configuration
+          content:
+            application/json:
+              example:
+                success: false
+                message: Timed game is missing timing configuration.
+
+  /game/expire:
+    put:
+      summary: Expire the current game
+      tags: [Game]
+      parameters:
+        - name: gameId
+          in: cookie
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Game expired successfully
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  secret: [1, 2, 3, 4]
+                message: Game expired successfully.
+        '400':
+          description: Missing gameId cookie
+          content:
+            application/json:
+              example:
+                success: false
+                message: Missing gameId cookie.
+        '404':
+          description: Game not found
+          content:
+            application/json:
+              example:
+                success: false
+                message: Game not found.
+
+  /games:
+    get:
+      summary: List all games
+      tags: [Game]
+      responses:
+        '200':
+          description: List of all games
+          content:
+            application/json:
+              example:
+                success: true
+                message: Games retrieved successfully
+                data:
+                  games:
+                    - id: 'game-id'
+                      attemptsLeft: null
+                      isWin: false
+                      isOver: false
+                      mode: timed
+                      startTime: '2025-08-25T01:07:50.422Z'
+                      timeLimit: 60
+                      createdAt: '2025-08-25T01:07:50.423Z'
+                      updatedAt: '2025-08-25T01:07:50.423Z'
+
+  /games/{id}/select:
+    post:
+      summary: Select a specific game by ID
+      tags: [Game]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Game selected successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Game Selected
+                data:
+                  gameId: cfce0e05-82aa-4208-aab6-1496a2cb123d
+        '404':
+          description: Game not found
+          content:
+            application/json:
+              example:
+                success: false
+                message: Game not found.
