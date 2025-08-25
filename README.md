@@ -127,46 +127,10 @@ Open:
 
 ## Environment Variables Docker
 
-Create a `.env.docker` file and copy these values into the file:
+Create a `.env.docker` file and copy these values provided in the email into the file:
 
-```ini
-# .env.docker
-
-# Frontend
-PORT=3000
-
-# PostgreSQL (Docker service name is used as hostname)
-DB_HOST=db
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=passwordfordatabase # do not change these values
-DB_NAME=postgres
-
-# External APIs
-RANDOM_ORG_BASE_URL=https://www.random.org/integers/
-
-# PostgreSQL container setup
-POSTGRES_PASSWORD=passwordfordatabase
-POSTGRES_USER=postgres
-POSTGRES_DB=postgres
-
-# JWT secret for auth
-JWT_SECRET=<your-jwt-secret>
-```
 ## Environment Variables
-Create a `.env` file and copy these values into the file:
-
-```ini
-RANDOM_ORG_BASE_URL=https://www.random.org/integers/
-#DB
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres       
-DB_PASSWORD='passwordfordatabase'
-DB_NAME=postgres
-
-JWT_SECRET=<your-jwt-secret> #make sure to create a secret
-```
+Create a `.env` file and copy the values provided in the email into the file:
 
 ---
 
