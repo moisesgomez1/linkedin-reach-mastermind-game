@@ -19,7 +19,7 @@ export async function fetchSecret(_req: Request, res: Response, next: NextFuncti
         const secret = await createGameSecret();
         if (!Array.isArray(secret) || secret.length !== 4) {
             return res.status(502).json({
-                succcess: false,
+                success: false,
                 message: 'Failed to generate a valid secret.',
             });
         }
