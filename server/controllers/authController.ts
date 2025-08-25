@@ -77,6 +77,25 @@ export function logout(_req: Request, res: Response) {
     });
 }
 
+export async function getMe(req: Request, res: Response) {
+    const token = req.cookies?.token;
+    if (!token) return res.status(401).json({ success: false, message: 'Unauthorized' });
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+        const user = await User.findByPk(decoded.id);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        return res.status(200).json({
+            success: true,
+            data: { id: user.id, username: user.username },
+        });
+    } catch {
+        return res.status(401).json({ success: false, message: 'Invalid token' });
+    }
+}
+
+
 export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies?.token;
 
