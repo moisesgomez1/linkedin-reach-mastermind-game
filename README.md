@@ -14,6 +14,7 @@
 * [How the game works (high-level)](#how-the-game-works-high-level)  
 * [How the app flows (end-to-end)](#how-the-app-flows-end-to-end)  
 * [API cheat sheet](#api-cheat-sheet)  
+* [Testing with Postman & Swagger](#testing-with-postman-and-swagger)
 * [Frontend flow](#frontend-flow)  
 * [Engineering story](#engineering-story)   
 * [Implemented Extensions](#implemented-extensions)  
@@ -272,6 +273,32 @@ All endpoints expect/return JSON and require auth unless noted.
 
 ### API docs
 - `GET /api-docs` — Swagger UI
+
+---
+
+## Testing with Postman and Swagger
+These routes are protected. You’ll need a **valid auth token** first, which the server issues as an **HTTP‑only cookie** on login.
+
+### Quick path (Postman)
+1) **Sign up (once)**  
+   `POST http://localhost:3000/api/auth/signup` with `{ "username": "alice", "password": "secret" }`.
+2) **Log in**  
+   `POST http://localhost:3000/api/auth/login` with the same body. Postman will store the **Set‑Cookie** automatically for `localhost:3000` (Cookie Jar).
+3) **Verify cookie**  
+   In Postman, click **Cookies** (top‑right) → select `localhost` → you should see your auth cookie (e.g., `token`). You don’t need to copy it; Postman will send it on every request to the API.
+4) **Call game endpoints**  
+   Now `POST /api/start`, `GET /api/game`, etc. will succeed. Remember that **`/api/guess` requires a `gameId` cookie**, which is set when you call `/api/start` (or `/api/games/:id/select`).
+
+### Quick path (Swagger UI)
+1) Open **http://localhost:3000/api-docs**.
+2) Use **`POST /api/auth/signup`** (once) and then **`POST /api/auth/login`**. Because Swagger runs on the **same origin** as the API, the browser will store the auth cookie.
+3) Click **Authorize** on the top right of the Swagger page. When asked for a token, you can paste the token value from your cookie
+4) Try any protected route (e.g., **POST /api/start**). For guessing, start a game first so the server can set the `gameId` cookie.
+
+**Troubleshooting**
+- If Swagger calls fail after login: refresh the page so the cookie is picked up, or click **Authorize** and paste a token if your Swagger requires Bearer.
+- For local dev, cookies are `sameSite:'lax'` and `secure:false`, which is correct for `http://localhost`.
+
 
 ---
 
