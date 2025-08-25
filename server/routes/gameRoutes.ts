@@ -80,6 +80,7 @@ router.get('/game', requireAuth, loadGame, getCurrentGame, (req, res) => {
             isWin: res.locals.game.isWin,
             isOver: res.locals.game.isOver,
             mode: res.locals.game.mode,
+            secret: res.locals.game.isOver ? res.locals.game.secret : undefined,
             startTime: res.locals.game.startTime,
             timeLimit: res.locals.game.timeLimit,
         },
@@ -113,6 +114,7 @@ router.post(
                 attemptsLeft: res.locals.game.attemptsLeft,
                 isWin: res.locals.game.isWin,
                 isOver: res.locals.game.isOver,
+                secret: res.locals.game.isOver ? res.locals.game.secret : undefined,
             },
             message: 'Guess processed successfully.',
         });

@@ -189,6 +189,7 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
                 return res.status(400).json({
                     success: false,
                     message: 'Time is up! Game over.',
+                    secret: game.secret, // we are sending the secret back so that the user can see what it was.
                 });
             }
         }
@@ -198,6 +199,7 @@ export async function makeGuess(req: Request, res: Response, next: NextFunction)
             return res.status(400).json({
                 success: false,
                 message: 'No attempts remaining. Game over.',
+                secret: game.secret, // we are sending the secret back so that the user can see what it was.
             });
         }
 
