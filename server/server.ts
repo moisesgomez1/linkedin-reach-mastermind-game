@@ -5,6 +5,8 @@ dotenv.config();
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import { sequelize } from './config/db';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 import './models';
 
 const app = express();
@@ -14,6 +16,8 @@ import { createGameSecret } from './services/gameService';
 import { evaluateGuess } from './utils/gameLogic';
 
 import gameRoutes from './routes/gameRoutes';
+
+const swaggerDocument = YAML.load('./server/docs/openapi.yaml');
 
 app.use(
     cors({
@@ -33,6 +37,9 @@ app.get('/health', (_req: Request, res: Response) => {
 
 //Route Handler
 app.use('/api', gameRoutes);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 
 app.get('/test-game', async (_req, res) => {
     const secret = await createGameSecret();
