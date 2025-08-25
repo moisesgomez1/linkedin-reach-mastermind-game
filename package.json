@@ -34,7 +34,9 @@
         "react-dom": "^19.1.1",
         "react-router-dom": "^7.8.1",
         "sequelize": "^6.37.7",
-        "sequelize-typescript": "^2.1.6"
+        "sequelize-typescript": "^2.1.6",
+        "swagger-ui-express": "^5.0.1",
+        "yamljs": "^0.3.0"
     },
     "devDependencies": {
         "@babel/core": "^7.28.3",
@@ -49,6 +51,8 @@
         "@types/react": "^19.1.10",
         "@types/react-dom": "^19.1.7",
         "@types/sequelize": "^4.28.20",
+        "@types/swagger-ui-express": "^4.1.8",
+        "@types/yamljs": "^0.2.34",
         "autoprefixer": "^10.4.21",
         "babel-loader": "^10.0.0",
         "concurrently": "^9.2.0",
