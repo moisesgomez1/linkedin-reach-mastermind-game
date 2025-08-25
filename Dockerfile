@@ -27,6 +27,7 @@ RUN npm ci --omit=dev
 # Copy built artifacts and script
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/build-server ./build-server
+COPY --from=builder /app/server/docs ./server/docs
 COPY --from=builder /app/wait-for-postgres.sh ./wait-for-postgres.sh
 RUN chmod +x wait-for-postgres.sh
 

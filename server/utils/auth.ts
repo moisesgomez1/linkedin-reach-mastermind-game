@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super-secret';
+const JWT_SECRET: string = process.env.JWT_SECRET!;
 
 export const hashPassword = async (password: string) => bcrypt.hash(password, 10);
 
