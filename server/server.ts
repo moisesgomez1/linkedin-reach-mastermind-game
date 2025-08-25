@@ -16,6 +16,7 @@ import { createGameSecret } from './services/gameService';
 import { evaluateGuess } from './utils/gameLogic';
 
 import gameRoutes from './routes/gameRoutes';
+import authRoutes from './routes/authRoutes';
 
 const swaggerDocument = YAML.load('./server/docs/openapi.yaml');
 
@@ -36,10 +37,11 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 //Route Handler
+app.use('/api/auth', authRoutes);
+
 app.use('/api', gameRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
 
 app.get('/test-game', async (_req, res) => {
     const secret = await createGameSecret();

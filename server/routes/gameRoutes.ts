@@ -12,6 +12,8 @@ import {
     expireGame,
 } from '../controllers/gameController';
 
+import { requireAuth } from '../controllers/authController';
+
 const router = express.Router();
 
 /**
@@ -22,7 +24,7 @@ const router = express.Router();
  * @route GET /games
  * @returns {Object[]} Array of game summaries.
  */
-router.get('/games', listGames);
+router.get('/games', requireAuth, listGames);
 
 /**
  * Starts a new Mastermind game session.
@@ -34,7 +36,7 @@ router.get('/games', listGames);
  * @route POST /start
  * @returns {Object} Confirmation message with game instructions.
  */
-router.post('/start', fetchSecret, startGame, setGameCookie, (req, res) => {
+router.post('/start', requireAuth, fetchSecret, startGame, setGameCookie, (req, res) => {
     res.status(201).json({
         success: true,
         message: 'New game started.',
@@ -49,7 +51,7 @@ router.post('/start', fetchSecret, startGame, setGameCookie, (req, res) => {
  * @route POST /games/:id/select
  * @returns {Object} Confirmation message and selected game ID.
  */
-router.post('/games/:id/select', selectGame, setGameCookie, (req, res) => {
+router.post('/games/:id/select', requireAuth, selectGame, setGameCookie, (req, res) => {
     res.status(200).json({
         success: true,
         data: {
@@ -69,7 +71,7 @@ router.post('/games/:id/select', selectGame, setGameCookie, (req, res) => {
  * @returns {Object} Game state: guesses, attempts left, win/loss/over status, mode, startTime and timeLimit depending on the mode or else null.
  */
 
-router.get('/game', loadGame, getCurrentGame, (req, res) => {
+router.get('/game', requireAuth, loadGame, getCurrentGame, (req, res) => {
     res.status(200).json({
         success: true,
         data: {
@@ -96,18 +98,26 @@ router.get('/game', loadGame, getCurrentGame, (req, res) => {
  * @route POST /guess
  * @returns {Object} Updated game state and guess history.
  */
-router.post('/guess', loadGame, validateGuessInput, makeGuess, getCurrentGame, (req, res) => {
-    res.status(200).json({
-        success: true,
-        data: {
-            guesses: res.locals.history,
-            attemptsLeft: res.locals.game.attemptsLeft,
-            isWin: res.locals.game.isWin,
-            isOver: res.locals.game.isOver,
-        },
-        message: 'Guess processed successfully.',
-    });
-});
+router.post(
+    '/guess',
+    requireAuth,
+    loadGame,
+    validateGuessInput,
+    makeGuess,
+    getCurrentGame,
+    (req, res) => {
+        res.status(200).json({
+            success: true,
+            data: {
+                guesses: res.locals.history,
+                attemptsLeft: res.locals.game.attemptsLeft,
+                isWin: res.locals.game.isWin,
+                isOver: res.locals.game.isOver,
+            },
+            message: 'Guess processed successfully.',
+        });
+    }
+);
 
 /**
  * Marks the current game as expired.
@@ -120,7 +130,7 @@ router.post('/guess', loadGame, validateGuessInput, makeGuess, getCurrentGame, (
  * @route PUT /game/expire
  * @returns {Object} Confirmation message indicating the game was marked as expired.
  */
-router.put('/game/expire', loadGame, expireGame, (req, res) => {
+router.put('/game/expire', requireAuth, loadGame, expireGame, (req, res) => {
     res.status(200).json({
         success: true,
         message: 'Game expired successfully.',
