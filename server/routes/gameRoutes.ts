@@ -140,7 +140,10 @@ router.post(
 router.put('/game/expire', requireAuth, loadGame, expireGame, (req, res) => {
     res.status(200).json({
         success: true,
-        message: 'Game expired successfully.',
+    data: {
+      secret: res.locals.game?.secret, 
+    },
+    message: 'Game expired successfully.',
     });
 });
 

@@ -167,6 +167,7 @@ export default function Mastermind() {
 
             setTimeExpired(true);
             setIsOver(true);
+            setSecret(result.data?.secret ?? null);
         } catch (err: any) {
             console.error('Failed to expire game:', err);
             setTimeExpired(true); // fallback local lock
@@ -215,7 +216,7 @@ export default function Mastermind() {
             </div>
 
             {/* Guess History Sidebar */}
-            <div className="w-96 p-6 overflow-y-auto bg-gray-950 border-l border-gray-800">
+            <div className="w-96 h-screen p-6 overflow-y-auto bg-gray-950 border-l border-gray-800">
                 <GuessHistory history={guessHistory} />
             </div>
         </div>

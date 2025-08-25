@@ -19,8 +19,8 @@ export default function GuessFeedback({ result, attemptsLeft }: Props) {
         <div className="flex flex-wrap justify-center gap-6 mt-6">
             {result ? (
                 <>
+                    {block('Correct Location', result.guess.correctPositions)}
                     {block('Correct Numbers', result.guess.correctNumbers)}
-                    {block('Correct Positions', result.guess.correctPositions)}
                     {block('Attempts Left', result.attemptsLeft)}
                 </>
             ) : (

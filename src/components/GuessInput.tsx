@@ -24,7 +24,7 @@ export default function GuessInput({
                 onChange={(e) => setGuess(e.target.value)}
                 placeholder="Enter 4 digits (0–7)"
                 disabled={disabled}
-                className="text-center text-4xl font-mono tracking-widest py-4 px-6 rounded-xl bg-gray-100 text-black placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-500"
+                className="text-center text-4xl font-mono tracking-widest py-4 px-6 rounded-xl bg-gray-100 text-black placeholder:text-2xl placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-500"
             />
             <button
                 type="submit"
