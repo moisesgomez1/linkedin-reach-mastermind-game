@@ -7,6 +7,7 @@ import Mastermind from './pages/MasterMind';
 import ModeSelect from './pages/ModeSelect';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Layout from './components/Layout';
 
 export default function App() {
     return (
@@ -20,7 +21,9 @@ export default function App() {
                         path="/"
                         element={
                             <PrivateRoute>
-                                <Home />
+                                <Layout>
+                                    <Home />
+                                </Layout>
                             </PrivateRoute>
                         }
                     />
@@ -29,7 +32,9 @@ export default function App() {
                         path="/select-mode"
                         element={
                             <PrivateRoute>
-                                <ModeSelect />
+                                <Layout>
+                                    <ModeSelect />
+                                </Layout>
                             </PrivateRoute>
                         }
                     />
@@ -38,7 +43,9 @@ export default function App() {
                         path="/mastermind"
                         element={
                             <PrivateRoute>
-                                <Mastermind />
+                                <Layout>
+                                    <Mastermind />
+                                </Layout>
                             </PrivateRoute>
                         }
                     />
